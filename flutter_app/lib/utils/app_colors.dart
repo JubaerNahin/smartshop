@@ -6,4 +6,5 @@ class AppColors {
   static const Color navbar = Color(0xffb0bec5);
   static const Color buttoncolors = Color(0xff263238);
   static const Color errorcolor = Colors.redAccent;
+  static const Color textColor = Colors.black45;
 }

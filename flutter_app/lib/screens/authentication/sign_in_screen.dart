@@ -1,0 +1,115 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_app/utils/app_colors.dart';
+import 'package:flutter_app/widgets/my_button.dart';
+import 'package:flutter_app/widgets/my_textfield.dart';
+import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class SignInScreen extends StatelessWidget {
+  // text editing cpntroller
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  SignInScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.primarycolor,
+      appBar: AppBar(
+        actions: [
+          TextButton(
+            onPressed: () => Get.toNamed('/dashboard'),
+            child: Text(
+              'Skip',
+              style: GoogleFonts.openSans(
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: AppColors.appbar,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Text(
+                    'S M A R T S H O P',
+                    style: GoogleFonts.openSans(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                //email test field
+                MyTextfield(
+                  hintText: 'E-mail',
+                  obsecureText: false,
+                  controller: emailController,
+                ),
+
+                const SizedBox(height: 8),
+                // password textfield
+                MyTextfield(
+                  hintText: 'Password',
+                  obsecureText: true,
+                  controller: passwordController,
+                ),
+
+                const SizedBox(height: 8),
+
+                //forgotpassword
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      //onTap here
+                      // onTap: () => ,
+                      child: Text(
+                        "Forgot Password?",
+                        style: TextStyle(color: AppColors.textColor),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                //sign in button
+                MyButton(text: "Sign In", onTap: () {}),
+                //don't have an account?register here
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Don't have an account?",
+                      style: TextStyle(color: AppColors.textColor),
+                    ),
+                    GestureDetector(
+                      onTap: () => Get.toNamed('/signup'),
+                      child: Text(
+                        "Register here",
+                        style: TextStyle(
+                          color: AppColors.textColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
