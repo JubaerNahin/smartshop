@@ -1,16 +1,43 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/services/auth_services.dart';
 import 'package:flutter_app/utils/app_colors.dart';
 import 'package:flutter_app/widgets/my_button.dart';
 import 'package:flutter_app/widgets/my_textfield.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SignInScreen extends StatelessWidget {
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
+
+  @override
+  State<SignInScreen> createState() => _SignInScreenState();
+}
+
+class _SignInScreenState extends State<SignInScreen> {
   // text editing cpntroller
   final TextEditingController emailController = TextEditingController();
+
   final TextEditingController passwordController = TextEditingController();
 
-  SignInScreen({super.key});
+  void signin() async {
+    showDialog(
+      context: context,
+      builder: (context) => Center(child: const CircularProgressIndicator()),
+    );
+    //sign in
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text,
+        password: passwordController.text,
+      );
+      if (context.mounted) Navigator.pop(context);
+      Get.toNamed('/dashboard');
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      displayMassageToUser(e.code, context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,7 +110,12 @@ class SignInScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 //sign in button
-                MyButton(text: "Sign In", onTap: () {}),
+                MyButton(
+                  text: "Sign In",
+                  onTap: () {
+                    signin();
+                  },
+                ),
                 //don't have an account?register here
                 const SizedBox(height: 8),
                 Row(

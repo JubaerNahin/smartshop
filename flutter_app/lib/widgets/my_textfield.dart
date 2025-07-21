@@ -4,6 +4,7 @@ class MyTextfield extends StatelessWidget {
   final String hintText;
   final bool obsecureText;
   final TextEditingController controller;
+
   const MyTextfield({
     super.key,
     required this.hintText,
@@ -15,11 +16,20 @@ class MyTextfield extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      decoration: InputDecoration(
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        hintText: hintText,
-      ),
       obscureText: obsecureText,
+      keyboardType:
+          obsecureText ? TextInputType.visiblePassword : TextInputType.text,
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        hintText: hintText,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
+      ),
     );
   }
 }
