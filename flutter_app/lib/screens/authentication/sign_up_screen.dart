@@ -50,6 +50,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             );
         //pop the loading circle
         Navigator.pop(context);
+        Get.toNamed('/dashboard');
       } on FirebaseAuthException catch (e) {
         Navigator.pop(context);
         displayMassageToUser(e.code, context);
