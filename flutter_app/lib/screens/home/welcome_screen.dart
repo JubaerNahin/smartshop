@@ -14,14 +14,10 @@ class WelcomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'S M A R T S H O P     A I',
-          style: GoogleFonts.lato(fontSize: width * 0.06),
-        ),
+        title: Text('S M A R T S H O P     A I', style: GoogleFonts.lato(fontSize: width * 0.06)),
         centerTitle: true,
         backgroundColor: AppColors.primarycolor,
         foregroundColor: AppColors.buttoncolors,
-        elevation: 0,
       ),
       body: SafeArea(
         child: Stack(
@@ -46,37 +42,29 @@ class WelcomeScreen extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            vertical: height * 0.03,
-                          ),
+                          padding: EdgeInsets.symmetric(vertical: height * 0.03),
                           textStyle: TextStyle(fontSize: width * 0.045),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           backgroundColor: AppColors.buttoncolors,
                         ),
-                        onPressed: () => Get.toNamed('/signin'),
+                        onPressed: () => Get.offNamed('/signin'),
                         child: const Text('Sign In'),
                       ),
                       SizedBox(height: height * 0.02),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            vertical: height * 0.03,
-                          ),
+                          padding: EdgeInsets.symmetric(vertical: height * 0.03),
                           textStyle: TextStyle(fontSize: width * 0.045),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                           backgroundColor: AppColors.buttoncolors,
                         ),
-                        onPressed: () => Get.toNamed('/signup'),
+                        onPressed: () => Get.offNamed('/signup'),
                         child: const Text('Sign Up'),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: height * 0.05),
+                SizedBox(height: height * 0.1),
               ],
             ),
           ],

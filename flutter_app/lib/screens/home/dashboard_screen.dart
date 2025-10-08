@@ -62,12 +62,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           final products =
               snapshot.data!.docs
-                  .map(
-                    (doc) => ProductModel.fromMap(
-                      doc.id,
-                      doc.data() as Map<String, dynamic>,
-                    ),
-                  )
+                  .map((doc) => ProductModel.fromMap(doc.id, doc.data() as Map<String, dynamic>))
                   .toList();
 
           // You can filter for featured/popular here if you have such fields
@@ -76,20 +71,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'All Products',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
+                const Text('All Products', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 320,
+                  height: 200,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: products.length,
-                    itemBuilder:
-                        (context, index) => _buildProductCard(products[index]),
+                    itemBuilder: (context, index) => _buildProductCard(products[index]),
                   ),
                 ),
+                const SizedBox(height: 16),
               ],
             ),
           );
@@ -101,10 +93,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chatbot'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],
@@ -130,30 +119,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(
-              product.imageUrl,
-              height: 120,
-              fit: BoxFit.cover,
-              width: double.infinity,
-            ),
+            Image.network(product.imageUrl, height: 120, fit: BoxFit.cover, width: double.infinity),
             const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.star, color: Colors.amber, size: 16),
-                Text(product.rating.toString()),
-              ],
-            ),
+            Row(children: [const Icon(Icons.star, color: Colors.amber, size: 16), Text(product.rating.toString())]),
             const SizedBox(height: 4),
-            Text(
-              '৳${product.price}',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            Text(
-              product.name,
-              style: const TextStyle(fontSize: 15),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
+            Text('৳${product.price}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(product.name, style: const TextStyle(fontSize: 15), maxLines: 1, overflow: TextOverflow.ellipsis),
             // Add more fields if needed
           ],
         ),

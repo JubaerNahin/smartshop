@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/models/products.dart';
 import 'package:get/get.dart';
 import '../../controllers/product_controller.dart';
 
@@ -43,17 +42,8 @@ class ProductDetailsScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    product.name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: controller.tryOn,
-                    child: const Text("Try-On"),
-                  ),
+                  Text(product.name, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  ElevatedButton(onPressed: controller.tryOn, child: const Text("Try-On")),
                 ],
               ),
             ),
@@ -68,16 +58,10 @@ class ProductDetailsScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.star, color: Colors.amber, size: 18),
                       const SizedBox(width: 4),
-                      Text(
-                        '${product.rating}',
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                      Text('${product.rating}', style: const TextStyle(fontSize: 16)),
                     ],
                   ),
-                  TextButton(
-                    onPressed: controller.showReviews,
-                    child: const Text("Show Reviews"),
-                  ),
+                  TextButton(onPressed: controller.showReviews, child: const Text("Show Reviews")),
                 ],
               ),
             ),
@@ -87,10 +71,7 @@ class ProductDetailsScreen extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  "Recommended Products:",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: Text("Recommended Products:", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),
             // Recommended List
@@ -120,34 +101,16 @@ class ProductDetailsScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Image.network(
-                              item.imageUrl,
-                              height: 60,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
-                            ),
+                            Image.network(item.imageUrl, height: 60, width: double.infinity, fit: BoxFit.cover),
                             const SizedBox(height: 8),
                             Row(
                               children: [
-                                const Icon(
-                                  Icons.star,
-                                  size: 14,
-                                  color: Colors.amber,
-                                ),
-                                Text(
-                                  '${item.rating}',
-                                  style: const TextStyle(fontSize: 14),
-                                ),
+                                const Icon(Icons.star, size: 14, color: Colors.amber),
+                                Text('${item.rating}', style: const TextStyle(fontSize: 14)),
                               ],
                             ),
                             const SizedBox(height: 4),
-                            Text(
-                              '৳${item.price}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 14,
-                              ),
-                            ),
+                            Text('৳${item.price}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                           ],
                         ),
                       ),
@@ -167,15 +130,9 @@ class ProductDetailsScreen extends StatelessWidget {
                 children: [
                   Text(
                     '৳${product.price.toStringAsFixed(2)}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  ElevatedButton(
-                    onPressed: controller.addToCart,
-                    child: const Text("Add to Cart"),
-                  ),
+                  ElevatedButton(onPressed: controller.addToCart, child: const Text("Add to Cart")),
                 ],
               ),
             ),

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/services/auth_services.dart';
@@ -22,35 +23,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   final TextEditingController passwordController = TextEditingController();
 
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   void registerUser() async {
-    //show loading circle
-    showDialog(
-      context: context,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
-    );
+    showDialog(context: context, builder: (context) => const Center(child: CircularProgressIndicator()));
 
-    //making sure the password match
     if (passwordController.text != confirmPasswordController.text) {
-      //pop loading circle
       Navigator.pop(context);
-      //show eror massage to the user
       displayMassageToUser("Password don't match", context);
-    }
-    //try creating the user
-    else {
+    } else {
       try {
         // create the user
-        UserCredential? userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-              email: emailController.text,
-              password: passwordController.text,
-            );
-        //pop the loading circle
+        UserCredential? userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+        // save additional user info in Firestore
+        await FirebaseFirestore.instance.collection("Users").doc(userCredential.user!.uid).set({
+          "name": nameController.text.trim(),
+          "email": emailController.text.trim(),
+          "createdAt": Timestamp.now(),
+        });
         Navigator.pop(context);
-        Get.toNamed('/dashboard');
+        Get.offNamed('/dashboard');
       } on FirebaseAuthException catch (e) {
         Navigator.pop(context);
         displayMassageToUser(e.code, context);
@@ -63,16 +58,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       backgroundColor: AppColors.primarycolor,
       appBar: AppBar(
+        backgroundColor: AppColors.primarycolor,
         actions: [
           TextButton(
-            onPressed: () => Get.toNamed('/dashboard'),
+            onPressed: () => Get.offNamed('/dashboard'),
             child: Text(
               'Skip',
-              style: GoogleFonts.openSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: AppColors.appbar,
-              ),
+              style: GoogleFonts.openSans(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.appbar),
             ),
           ),
         ],
@@ -89,73 +81,41 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     padding: const EdgeInsets.all(20),
                     child: Text(
                       'S M A R T S H O P',
-                      style: GoogleFonts.openSans(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w400,
-                      ),
+                      style: GoogleFonts.openSans(fontSize: 24, fontWeight: FontWeight.w400),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  // Name field
-                  MyTextfield(
-                    hintText: 'Name',
-                    obsecureText: false,
-                    controller: nameController,
-                  ),
+                  MyTextfield(hintText: 'Name', obsecureText: false, controller: nameController),
                   const SizedBox(height: 8),
 
-                  // Email field
-                  MyTextfield(
-                    hintText: 'E-mail',
-                    obsecureText: false,
-                    controller: emailController,
-                  ),
+                  MyTextfield(hintText: 'E-mail', obsecureText: false, controller: emailController),
                   const SizedBox(height: 8),
 
-                  // Password field
-                  MyTextfield(
-                    hintText: 'Password',
-                    obsecureText: true,
-                    controller: passwordController,
-                  ),
+                  MyTextfield(hintText: 'Password', obsecureText: true, controller: passwordController),
                   const SizedBox(height: 8),
 
-                  // Retype password field
-                  MyTextfield(
-                    hintText: 'Retype Password',
-                    obsecureText: true,
-                    controller: confirmPasswordController,
-                  ),
+                  MyTextfield(hintText: 'Retype Password', obsecureText: true, controller: confirmPasswordController),
                   const SizedBox(height: 16),
 
-                  // Sign up button
                   MyButton(
                     text: "Sign Up",
                     onTap: () {
-                      // TODO: Add Firebase sign up logic and validation
                       registerUser();
                     },
                   ),
 
                   const SizedBox(height: 16),
 
-                  // Already have an account? Sign In
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
-                        "Already have an account?",
-                        style: TextStyle(color: AppColors.textColor),
-                      ),
+                      Text("Already have an account?", style: TextStyle(color: AppColors.textColor)),
                       GestureDetector(
                         onTap: () => Get.toNamed('/signin'),
                         child: Text(
                           " Sign In",
-                          style: TextStyle(
-                            color: AppColors.textColor,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
                         ),
                       ),
                     ],

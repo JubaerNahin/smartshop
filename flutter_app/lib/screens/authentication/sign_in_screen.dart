@@ -21,15 +21,12 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   void signin() async {
-    showDialog(
-      context: context,
-      builder: (context) => Center(child: const CircularProgressIndicator()),
-    );
+    showDialog(context: context, builder: (context) => Center(child: const CircularProgressIndicator()));
     //sign in
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailController.text,
-        password: passwordController.text,
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
       );
       if (context.mounted) Navigator.pop(context);
       Get.toNamed('/dashboard');
@@ -44,16 +41,13 @@ class _SignInScreenState extends State<SignInScreen> {
     return Scaffold(
       backgroundColor: AppColors.primarycolor,
       appBar: AppBar(
+        backgroundColor: AppColors.primarycolor,
         actions: [
           TextButton(
             onPressed: () => Get.toNamed('/dashboard'),
             child: Text(
               'Skip',
-              style: GoogleFonts.openSans(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: AppColors.appbar,
-              ),
+              style: GoogleFonts.openSans(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.appbar),
             ),
           ),
         ],
@@ -69,28 +63,17 @@ class _SignInScreenState extends State<SignInScreen> {
                   padding: EdgeInsets.all(20),
                   child: Text(
                     'S M A R T S H O P',
-                    style: GoogleFonts.openSans(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w400,
-                    ),
+                    style: GoogleFonts.openSans(fontSize: 24, fontWeight: FontWeight.w400),
                   ),
                 ),
                 const SizedBox(height: 16),
 
                 //email test field
-                MyTextfield(
-                  hintText: 'E-mail',
-                  obsecureText: false,
-                  controller: emailController,
-                ),
+                MyTextfield(hintText: 'E-mail', obsecureText: false, controller: emailController),
 
                 const SizedBox(height: 8),
                 // password textfield
-                MyTextfield(
-                  hintText: 'Password',
-                  obsecureText: true,
-                  controller: passwordController,
-                ),
+                MyTextfield(hintText: 'Password', obsecureText: true, controller: passwordController),
 
                 const SizedBox(height: 8),
 
@@ -101,10 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     GestureDetector(
                       //onTap here
                       // onTap: () => ,
-                      child: Text(
-                        "Forgot Password?",
-                        style: TextStyle(color: AppColors.textColor),
-                      ),
+                      child: Text("Forgot Password?", style: TextStyle(color: AppColors.textColor)),
                     ),
                   ],
                 ),
@@ -121,18 +101,12 @@ class _SignInScreenState extends State<SignInScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Don't have an account?",
-                      style: TextStyle(color: AppColors.textColor),
-                    ),
+                    Text("Don't have an account?", style: TextStyle(color: AppColors.textColor)),
                     GestureDetector(
-                      onTap: () => Get.toNamed('/signup'),
+                      onTap: () => Get.offNamed('/signup'),
                       child: Text(
                         "Register here",
-                        style: TextStyle(
-                          color: AppColors.textColor,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: TextStyle(color: AppColors.textColor, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ],
