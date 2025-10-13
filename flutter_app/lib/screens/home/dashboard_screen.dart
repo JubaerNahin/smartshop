@@ -62,23 +62,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           final products =
               snapshot.data!.docs
-                  .map((doc) => ProductModel.fromMap(doc.id, doc.data() as Map<String, dynamic>))
+                  .map(
+                    (doc) => ProductModel.fromMap(
+                      doc.id,
+                      doc.data() as Map<String, dynamic>,
+                    ),
+                  )
                   .toList();
-
+          final discountedProducts =
+              products.where((product) => (product.discount ?? 0) > 0).toList();
           // You can filter for featured/popular here if you have such fields
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('All Products', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text(
+                  'Discount Products',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: discountedProducts.length,
+                    itemBuilder:
+                        (context, index) =>
+                            _buildProductCard(discountedProducts[index]),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Featured Products',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 12),
                 SizedBox(
                   height: 200,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: products.length,
-                    itemBuilder: (context, index) => _buildProductCard(products[index]),
+                    itemBuilder:
+                        (context, index) => _buildProductCard(products[index]),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Popular Products',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: products.length,
+                    itemBuilder:
+                        (context, index) => _buildProductCard(products[index]),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -93,7 +135,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         type: BottomNavigationBarType.fixed,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Cart'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chatbot'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
         ],
@@ -102,6 +147,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildProductCard(ProductModel product) {
+    final double discount = product.discount ?? 0;
+    final bool hasDiscount = discount > 0;
+    final double discountedPrice =
+        hasDiscount ? product.price * (1 - discount / 100) : product.price;
+
     return GestureDetector(
       onTap: () {
         final controller = Get.find<ProductController>();
@@ -109,7 +159,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
         Get.to(() => ProductDetailsScreen());
       },
       child: Container(
-        width: 180,
+        width: 200,
+        height: 500,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
@@ -119,13 +170,87 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(product.imageUrl, height: 120, fit: BoxFit.cover, width: double.infinity),
+            Stack(
+              children: [
+                Image.network(
+                  product.imageUrl,
+                  height: 100,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorBuilder:
+                      (context, error, stackTrace) => Icon(
+                        Icons.broken_image,
+                        size: 100,
+                        color: Colors.grey,
+                      ),
+                  loadingBuilder:
+                      (context, child, loadingProgress) =>
+                          loadingProgress == null
+                              ? child
+                              : Center(child: CircularProgressIndicator()),
+                ),
+                if (hasDiscount)
+                  Positioned(
+                    top: 4,
+                    left: 4,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        "${discount.toStringAsFixed(0)}% OFF",
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 8),
-            Row(children: [const Icon(Icons.star, color: Colors.amber, size: 16), Text(product.rating.toString())]),
+            Row(
+              children: [
+                const Icon(Icons.star, color: Colors.amber, size: 16),
+                Text(product.rating.toString()),
+              ],
+            ),
             const SizedBox(height: 4),
-            Text('৳${product.price}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-            Text(product.name, style: const TextStyle(fontSize: 15), maxLines: 1, overflow: TextOverflow.ellipsis),
-            // Add more fields if needed
+            Row(
+              children: [
+                Text(
+                  '৳${discountedPrice.toStringAsFixed(0)}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.redAccent,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                if (hasDiscount)
+                  Text(
+                    '৳${product.price.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      decoration: TextDecoration.lineThrough,
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              product.name,
+              style: const TextStyle(fontSize: 15),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ],
         ),
       ),

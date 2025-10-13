@@ -9,6 +9,7 @@ class ProductModel {
   final String brand;
   final double rating;
   final String description;
+  final double discount;
 
   ProductModel({
     required this.id,
@@ -21,6 +22,7 @@ class ProductModel {
     required this.brand,
     required this.rating,
     required this.description,
+    required this.discount,
   });
 
   factory ProductModel.fromMap(String id, Map<String, dynamic> data) {
@@ -35,6 +37,10 @@ class ProductModel {
       brand: data['brand'],
       rating: (data['rating'] as num).toDouble(),
       description: data['description'],
+      discount:
+          (data['discount'] != null)
+              ? (data['discount'] as num).toDouble()
+              : 0.0,
     );
   }
 
@@ -48,5 +54,6 @@ class ProductModel {
     'brand': brand,
     'rating': rating,
     'description': description,
+    'discount': discount,
   };
 }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_app/controllers/cart_controller.dart';
+import 'package:flutter_app/models/cart.dart';
 // Update import path if needed
 import 'package:flutter_app/models/products.dart';
 import 'package:get/get.dart';
@@ -47,10 +48,19 @@ class ProductController extends GetxController {
     );
   }
 
-  void addToCart() {
-    if (selectedProduct.value != null) {
-      Get.find<CartController>().addToCart(selectedProduct.value!);
-      Get.snackbar("Success", "${selectedProduct.value!.name} added to cart");
+  void addToCart(CartItemModel item, int quantity) {
+    final product = selectedProduct.value;
+    if (product != null) {
+      final cartItem = CartItemModel(
+        productId: product.id,
+        productName: product.name,
+        price: product.price * (1 - product.discount / 100),
+        imageUrl: product.imageUrl,
+        size: product.sizes[0],
+        quantity: quantity,
+      );
+      Get.put(CartController()).addToCart(cartItem);
+      Get.snackbar("Success", "${product.name} added to cart");
     }
   }
 
