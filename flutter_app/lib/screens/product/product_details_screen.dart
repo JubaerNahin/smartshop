@@ -5,10 +5,15 @@ import 'package:flutter_app/widgets/my_button.dart';
 import 'package:get/get.dart';
 import '../../controllers/product_controller.dart';
 
-class ProductDetailsScreen extends StatelessWidget {
-  late final ProductController controller = Get.put(ProductController());
+class ProductDetailsScreen extends StatefulWidget {
+  const ProductDetailsScreen({super.key});
 
-  ProductDetailsScreen({super.key});
+  @override
+  State<ProductDetailsScreen> createState() => _ProductDetailsScreenState();
+}
+
+class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  late final ProductController controller = Get.put(ProductController());
 
   get price => null;
 
@@ -222,6 +227,7 @@ class ProductDetailsScreen extends StatelessWidget {
                         imageUrl: product.imageUrl,
                         size: product.sizes[0],
                         quantity: 1,
+                        id: "",
                       );
                       Get.find<CartController>().addToCart(cartItem);
                     },

@@ -58,6 +58,7 @@ class ProductController extends GetxController {
         imageUrl: product.imageUrl,
         size: product.sizes[0],
         quantity: quantity,
+        id: "",
       );
       Get.put(CartController()).addToCart(cartItem);
       Get.snackbar("Success", "${product.name} added to cart");

@@ -1,4 +1,5 @@
 class CartItemModel {
+  final String id;
   final String productId;
   final String productName;
   final int quantity;
@@ -7,6 +8,7 @@ class CartItemModel {
   final String size;
 
   CartItemModel({
+    required this.id,
     required this.productId,
     required this.productName,
     required this.quantity,
@@ -15,14 +17,16 @@ class CartItemModel {
     required this.size,
   });
 
-  factory CartItemModel.fromMap(Map<String, dynamic> data) => CartItemModel(
-    productId: data['productId'],
-    productName: data['productName'],
-    quantity: data['quantity'],
-    price: (data['price'] as num).toDouble(),
-    imageUrl: data['imageUrl'],
-    size: data['size'],
-  );
+  factory CartItemModel.fromMap(String id, Map<String, dynamic> data) =>
+      CartItemModel(
+        id: id,
+        productId: data['productId'],
+        productName: data['productName'],
+        quantity: data['quantity'],
+        price: (data['price'] as num).toDouble(),
+        imageUrl: data['imageUrl'],
+        size: data['size'],
+      );
 
   Map<String, dynamic> toMap() => {
     'productId': productId,

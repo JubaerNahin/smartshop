@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:get/get.dart';
 
 class CheckoutScreen extends StatelessWidget {
   const CheckoutScreen({super.key});
@@ -43,11 +44,7 @@ class CheckoutScreen extends StatelessWidget {
 
               return StreamBuilder<QuerySnapshot>(
                 stream:
-                    FirebaseFirestore.instance
-                        .collection('users')
-                        .doc(uid)
-                        .collection('cart')
-                        .snapshots(),
+                    FirebaseFirestore.instance.collection('cart').snapshots(),
                 builder: (context, cartSnapshot) {
                   if (cartSnapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -56,13 +53,14 @@ class CheckoutScreen extends StatelessWidget {
                       cartSnapshot.data!.docs.isEmpty) {
                     return const Center(child: Text('Your cart is empty.'));
                   }
+
                   final cartDocs = cartSnapshot.data!.docs;
                   final cartItems =
                       cartDocs
                           .map(
                             (doc) => {
-                              'name': doc['name'],
-                              'qty': doc['qty'],
+                              'name': doc['productName'],
+                              'qty': doc['quantity'],
                               'price': doc['price'],
                             },
                           )
@@ -124,7 +122,9 @@ class CheckoutScreen extends StatelessWidget {
                               const Divider(),
                               ...cartItems.map(
                                 (item) => ListTile(
-                                  title: Text(item['name'] as String),
+                                  title: Text(
+                                    item['name']?.toString() ?? 'Unnamed',
+                                  ),
                                   subtitle: Text('Qty: ${item['qty']}'),
                                   trailing: Text(
                                     '৳${(item['price'] as num).toStringAsFixed(2)}',
@@ -155,8 +155,41 @@ class CheckoutScreen extends StatelessWidget {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            // TODO: Implement checkout logic (e.g., create order in Firestore)
+                          onPressed: () async {
+                            final uid = FirebaseAuth.instance.currentUser?.uid;
+                            if (uid == null) return;
+
+                            final orderData = {
+                              'userId': uid,
+                              'items': cartItems,
+                              'total': total,
+                              'status': 'pending',
+                              'orderedAt': Timestamp.now(),
+                              'shippingAddress': address,
+                            };
+
+                            await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(uid)
+                                .collection('orders')
+                                .add(orderData);
+
+                            // Clear cart
+                            final cartRef = FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(uid)
+                                .collection('cart');
+
+                            final cartDocs = await cartRef.get();
+                            for (var doc in cartDocs.docs) {
+                              await doc.reference.delete();
+                            }
+
+                            Get.snackbar(
+                              "Order Placed",
+                              "Your order has been successfully placed!",
+                            );
+                            Get.offNamed('/dashboard');
                           },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),

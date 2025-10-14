@@ -4,10 +4,15 @@ import 'package:flutter_app/models/cart.dart';
 import 'package:get/get.dart';
 import '../../controllers/cart_controller.dart';
 
-class CartScreen extends StatelessWidget {
-  final CartController cartController = Get.put(CartController());
+class CartScreen extends StatefulWidget {
+  const CartScreen({super.key});
 
-  CartScreen({super.key});
+  @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  final CartController cartController = Get.put(CartController());
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +44,7 @@ class CartScreen extends StatelessWidget {
               snapshot.data!.docs
                   .map(
                     (doc) => CartItemModel.fromMap(
+                      doc.id,
                       doc.data() as Map<String, dynamic>,
                     ),
                   )
@@ -57,7 +63,15 @@ class CartScreen extends StatelessWidget {
                   itemBuilder: (context, index) {
                     final product = cartItems[index];
                     return ListTile(
-                      leading: Image.network(product.imageUrl, width: 60),
+                      leading: Image.network(
+                        product.imageUrl.isNotEmpty
+                            ? product.imageUrl
+                            : 'https://via.placeholder.com/150',
+                        width: 60,
+                        errorBuilder:
+                            (context, error, stackTrace) =>
+                                const Icon(Icons.broken_image),
+                      ),
                       title: Text(product.productName),
                       subtitle: Text(
                         '৳${product.price.toStringAsFixed(2)} x ${product.quantity}',
@@ -68,13 +82,8 @@ class CartScreen extends StatelessWidget {
                           cartController.removeFromCart(product);
                           FirebaseFirestore.instance
                               .collection('cart')
-                              .where('productId', isEqualTo: product.productId)
-                              .get()
-                              .then((querySnapshot) {
-                                for (var doc in querySnapshot.docs) {
-                                  doc.reference.delete();
-                                }
-                              });
+                              .doc(product.id)
+                              .delete();
                         },
                       ),
                     );
@@ -97,7 +106,7 @@ class CartScreen extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () {
                         // Navigate to DashboardScreen with Home tab selected
-                        Get.offNamed('/dashboard');
+                        Get.offNamed('/checkoutscreen');
                         Get.snackbar(
                           "Success",
                           "Proceeding to Dashboard Home...",
