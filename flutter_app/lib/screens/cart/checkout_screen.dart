@@ -169,14 +169,14 @@ class CheckoutScreen extends StatelessWidget {
                             };
 
                             await FirebaseFirestore.instance
-                                .collection('users')
+                                .collection('Users')
                                 .doc(uid)
                                 .collection('orders')
                                 .add(orderData);
 
                             // Clear cart
                             final cartRef = FirebaseFirestore.instance
-                                .collection('users')
+                                .collection('Users')
                                 .doc(uid)
                                 .collection('cart');
 
@@ -184,7 +184,6 @@ class CheckoutScreen extends StatelessWidget {
                             for (var doc in cartDocs.docs) {
                               await doc.reference.delete();
                             }
-
                             Get.snackbar(
                               "Order Placed",
                               "Your order has been successfully placed!",

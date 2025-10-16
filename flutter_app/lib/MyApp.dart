@@ -5,6 +5,7 @@ import 'package:flutter_app/screens/cart/cart_screen.dart';
 import 'package:flutter_app/screens/cart/checkout_screen.dart';
 import 'package:flutter_app/screens/home/dashboard_screen.dart';
 import 'package:flutter_app/screens/home/welcome_screen.dart';
+import 'package:flutter_app/screens/profile/profile_screen.dart';
 import 'package:flutter_app/theme/themes.dart';
 import 'package:get/get.dart';
 
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/signup', page: () => SignUpScreen()),
         GetPage(name: '/cart', page: () => CartScreen()),
         GetPage(name: '/checkoutscreen', page: () => CheckoutScreen()),
+        GetPage(name: '/account', page: () => ProfileScreen()),
       ],
     );
   }
