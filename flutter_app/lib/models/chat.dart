@@ -1,33 +1,27 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class ChatQueryModel {
-  final String id;
-  final String userId;
+class ChatMessage {
   final String message;
-  final String response;
+  final bool isUser;
   final DateTime timestamp;
 
-  ChatQueryModel({
-    required this.id,
-    required this.userId,
+  ChatMessage({
     required this.message,
-    required this.response,
+    required this.isUser,
     required this.timestamp,
   });
 
-  factory ChatQueryModel.fromMap(String id, Map<String, dynamic> data) =>
-      ChatQueryModel(
-        id: id,
-        userId: data['userId'],
-        message: data['message'],
-        response: data['response'],
-        timestamp: (data['timestamp'] as Timestamp).toDate(),
-      );
+  Map<String, dynamic> toMap() {
+    return {
+      'message': message,
+      'isUser': isUser,
+      'timestamp': timestamp.toIso8601String(),
+    };
+  }
 
-  Map<String, dynamic> toMap() => {
-    'userId': userId,
-    'message': message,
-    'response': response,
-    'timestamp': timestamp,
-  };
+  factory ChatMessage.fromMap(Map<String, dynamic> map) {
+    return ChatMessage(
+      message: map['message'] ?? '',
+      isUser: map['isUser'] ?? false,
+      timestamp: DateTime.parse(map['timestamp']),
+    );
+  }
 }

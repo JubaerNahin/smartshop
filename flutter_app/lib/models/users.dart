@@ -7,8 +7,14 @@ class UserModel {
   final String phone;
   final String profileImage;
   final DateTime joinedAt;
+  final String address;
+  final String imageUrl;
+  final String shippingAddress;
 
   UserModel({
+    required this.address,
+    required this.imageUrl,
+    required this.shippingAddress,
     required this.id,
     required this.name,
     required this.email,
@@ -25,6 +31,9 @@ class UserModel {
       phone: data['phone'],
       profileImage: data['profileImage'] ?? '',
       joinedAt: (data['joinedAt'] as Timestamp).toDate(),
+      address: data['address'] ?? '',
+      imageUrl: data['imageUrl'] ?? '',
+      shippingAddress: data['shippingAddress'] ?? '',
     );
   }
 
@@ -34,5 +43,8 @@ class UserModel {
     'phone': phone,
     'profileImage': profileImage,
     'joinedAt': joinedAt,
+    'address': address,
+    'imageUrl': imageUrl,
+    'shippingAddress': shippingAddress,
   };
 }

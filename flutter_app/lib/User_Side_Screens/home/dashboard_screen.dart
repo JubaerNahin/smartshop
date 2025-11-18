@@ -3,7 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/controllers/product_controller.dart';
 import 'package:flutter_app/models/products.dart';
-import 'package:flutter_app/screens/product/product_details_screen.dart';
+import 'package:flutter_app/User_Side_Screens/product/product_details_screen.dart';
+import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -43,96 +44,126 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.appbar, // same as AppBar color
       appBar: AppBar(
-        title: const Text('S M A R T S H O P'),
+        centerTitle: true,
+        backgroundColor: AppColors.appbar,
+        title: const Text(
+          'S M A R T S H O P',
+          style: TextStyle(color: Colors.white),
+        ),
         automaticallyImplyLeading: false,
-        actions: [
-          // Add search if needed
-        ],
+        elevation: 6,
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('products').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No products found.'));
-          }
 
-          final products =
-              snapshot.data!.docs
-                  .map(
-                    (doc) => ProductModel.fromMap(
+      // ✅ Curved Body
+      body: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
+        child: Container(
+          color: AppColors.primarycolor, // different color from AppBar
+          padding: const EdgeInsets.only(top: 16),
+          child: StreamBuilder<QuerySnapshot>(
+            stream:
+                FirebaseFirestore.instance.collection('products').snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text('No products found.'));
+              }
+
+              final products =
+                  snapshot.data!.docs.map((doc) {
+                    return ProductModel.fromMap(
                       doc.id,
                       doc.data() as Map<String, dynamic>,
-                    ),
-                  )
-                  .toList();
-          final discountedProducts =
-              products.where((product) => (product.discount ?? 0) > 0).toList();
-          // You can filter for featured/popular here if you have such fields
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Discount Products',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
+                    );
+                  }).toList();
 
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: discountedProducts.length,
-                    itemBuilder:
-                        (context, index) =>
-                            _buildProductCard(discountedProducts[index]),
-                  ),
+              final discountedProducts =
+                  products.where((p) => (p.discount ?? 0) > 0).toList();
+
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Discount Products',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: discountedProducts.length,
+                        itemBuilder:
+                            (context, index) =>
+                                _buildProductCard(discountedProducts[index]),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Featured Products',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: products.length,
+                        itemBuilder:
+                            (context, index) =>
+                                _buildProductCard(products[index]),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Popular Products',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 200,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: products.length,
+                        itemBuilder:
+                            (context, index) =>
+                                _buildProductCard(products[index]),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Featured Products',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: products.length,
-                    itemBuilder:
-                        (context, index) => _buildProductCard(products[index]),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Popular Products',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: products.length,
-                    itemBuilder:
-                        (context, index) => _buildProductCard(products[index]),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
+
       bottomNavigationBar: BottomNavigationBar(
+        backgroundColor: const Color.fromARGB(255, 203, 215, 221),
+        elevation: 6,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.grey[700],
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
@@ -147,25 +178,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildProductCard(ProductModel product) {
-    final double discount = product.discount ?? 0;
-    final bool hasDiscount = discount > 0;
-    final double discountedPrice =
+    final discount = product.discount ?? 0;
+    final hasDiscount = discount > 0;
+    final discountedPrice =
         hasDiscount ? product.price * (1 - discount / 100) : product.price;
 
     return GestureDetector(
       onTap: () {
         final controller = Get.find<ProductController>();
         controller.loadProduct(product);
-        Get.to(() => ProductDetailsScreen());
+        Get.to(() => const ProductDetailsScreen());
       },
       child: Container(
         width: 200,
-        height: 500,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           border: Border.all(color: Colors.grey.shade300),
           borderRadius: BorderRadius.circular(12),
+          color: Colors.white,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -175,19 +206,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 Image.network(
                   product.imageUrl,
                   height: 100,
-                  fit: BoxFit.cover,
                   width: double.infinity,
+                  fit: BoxFit.cover,
                   errorBuilder:
-                      (context, error, stackTrace) => Icon(
+                      (context, error, stackTrace) => const Icon(
                         Icons.broken_image,
                         size: 100,
                         color: Colors.grey,
                       ),
-                  loadingBuilder:
-                      (context, child, loadingProgress) =>
-                          loadingProgress == null
-                              ? child
-                              : Center(child: CircularProgressIndicator()),
                 ),
                 if (hasDiscount)
                   Positioned(

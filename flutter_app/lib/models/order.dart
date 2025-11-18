@@ -26,7 +26,7 @@ class OrderModel {
         userId: data['userId'],
         items:
             (data['items'] as List)
-                .map((item) => CartItemModel.fromMap(item))
+                .map((item) => CartItemModel.fromMap(item['id'], item))
                 .toList(),
         total: (data['total'] as num).toDouble(),
         status: data['status'],

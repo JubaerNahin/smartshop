@@ -7,4 +7,5 @@ class AppColors {
   static const Color buttoncolors = Color(0xff263238);
   static const Color errorcolor = Colors.redAccent;
   static const Color textColor = Colors.black45;
+  static const Color cardcolor = Color.fromARGB(255, 232, 235, 237);
 }

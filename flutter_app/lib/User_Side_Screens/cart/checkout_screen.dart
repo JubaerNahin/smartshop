@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_app/utils/app_colors.dart';
+import 'package:flutter_app/widgets/my_textfield.dart';
 import 'package:get/get.dart';
 
 class CheckoutScreen extends StatelessWidget {
-  const CheckoutScreen({super.key});
+  CheckoutScreen({super.key});
+
+  final TextEditingController changeShippingAddressController =
+      TextEditingController();
 
   Future<Map<String, dynamic>> _getUserData() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
     if (uid == null) throw Exception("User not logged in");
     final doc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+        await FirebaseFirestore.instance.collection('Users').doc(uid).get();
     return doc.data() ?? {};
   }
 
@@ -24,9 +29,20 @@ class CheckoutScreen extends StatelessWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Checkout'), centerTitle: true),
-      body: SafeArea(
-        child: Padding(
+      backgroundColor: AppColors.appbar, // AppBar color as scaffold background
+      appBar: AppBar(
+        title: const Text('Checkout', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+        backgroundColor: AppColors.appbar,
+        elevation: 6,
+      ),
+      body: ClipRRect(
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(25),
+          topRight: Radius.circular(25),
+        ),
+        child: Container(
+          color: AppColors.primarycolor, // different from AppBar
           padding: const EdgeInsets.all(16),
           child: FutureBuilder<Map<String, dynamic>>(
             future: _getUserData(),
@@ -37,8 +53,9 @@ class CheckoutScreen extends StatelessWidget {
               if (!userSnapshot.hasData) {
                 return const Center(child: Text('Failed to load user data.'));
               }
+
               final userData = userSnapshot.data!;
-              final address = userData['address'] ?? 'No address set';
+              final address = userData['shippingAddress'] ?? 'No address set';
               final paymentMethod =
                   userData['paymentMethod'] ?? 'No payment method';
 
@@ -80,13 +97,18 @@ class CheckoutScreen extends StatelessWidget {
                     children: [
                       // Address Section
                       Card(
+                        color: AppColors.cardcolor,
                         child: ListTile(
                           leading: const Icon(Icons.location_on),
                           title: const Text('Shipping Address'),
                           subtitle: Text(address),
                           trailing: TextButton(
                             onPressed: () {
-                              // TODO: Implement address change
+                              MyTextfield(
+                                hintText: 'Change shipping address',
+                                controller: changeShippingAddressController,
+                                obsecureText: false,
+                              );
                             },
                             child: const Text('Change'),
                           ),
@@ -95,6 +117,8 @@ class CheckoutScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       // Payment Method Section
                       Card(
+                        // color: Colors.blueGrey.shade100,
+                        color: AppColors.cardcolor,
                         child: ListTile(
                           leading: const Icon(Icons.payment),
                           title: const Text('Payment Method'),
@@ -110,6 +134,7 @@ class CheckoutScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       // Cart Items Section
                       Card(
+                        color: AppColors.cardcolor,
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Column(
@@ -138,6 +163,7 @@ class CheckoutScreen extends StatelessWidget {
                       const SizedBox(height: 16),
                       // Order Summary Section
                       Card(
+                        color: AppColors.cardcolor,
                         child: Padding(
                           padding: const EdgeInsets.all(12.0),
                           child: Column(
@@ -184,6 +210,7 @@ class CheckoutScreen extends StatelessWidget {
                             for (var doc in cartDocs.docs) {
                               await doc.reference.delete();
                             }
+
                             Get.snackbar(
                               "Order Placed",
                               "Your order has been successfully placed!",

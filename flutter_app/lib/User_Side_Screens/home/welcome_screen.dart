@@ -14,10 +14,13 @@ class WelcomeScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('S M A R T S H O P     A I', style: GoogleFonts.lato(fontSize: width * 0.06)),
+        title: Text(
+          'S M A R T S H O P     A I',
+          style: GoogleFonts.lato(fontSize: width * 0.06),
+        ),
         centerTitle: true,
         backgroundColor: AppColors.primarycolor,
-        foregroundColor: AppColors.buttoncolors,
+        // foregroundColor: AppColors.buttoncolors,
       ),
       body: SafeArea(
         child: Stack(
@@ -42,9 +45,13 @@ class WelcomeScreen extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: height * 0.03),
+                          padding: EdgeInsets.symmetric(
+                            vertical: height * 0.03,
+                          ),
                           textStyle: TextStyle(fontSize: width * 0.045),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           backgroundColor: AppColors.buttoncolors,
                         ),
                         onPressed: () => Get.offNamed('/signin'),
@@ -53,9 +60,13 @@ class WelcomeScreen extends StatelessWidget {
                       SizedBox(height: height * 0.02),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: height * 0.03),
+                          padding: EdgeInsets.symmetric(
+                            vertical: height * 0.03,
+                          ),
                           textStyle: TextStyle(fontSize: width * 0.045),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
                           backgroundColor: AppColors.buttoncolors,
                         ),
                         onPressed: () => Get.offNamed('/signup'),

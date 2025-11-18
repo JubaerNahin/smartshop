@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/screens/authentication/sign_in_screen.dart';
-import 'package:flutter_app/screens/authentication/sign_up_screen.dart';
-import 'package:flutter_app/screens/cart/cart_screen.dart';
-import 'package:flutter_app/screens/cart/checkout_screen.dart';
-import 'package:flutter_app/screens/home/dashboard_screen.dart';
-import 'package:flutter_app/screens/home/welcome_screen.dart';
-import 'package:flutter_app/screens/profile/profile_screen.dart';
+import 'package:flutter_app/Admin_Side_Screens/screens/auth/admin_login_screen.dart';
+import 'package:flutter_app/User_Side_Screens/authentication/forgot_password_screen.dart';
+import 'package:flutter_app/User_Side_Screens/authentication/sign_in_screen.dart';
+import 'package:flutter_app/User_Side_Screens/authentication/sign_up_screen.dart';
+import 'package:flutter_app/User_Side_Screens/cart/cart_screen.dart';
+import 'package:flutter_app/User_Side_Screens/cart/checkout_screen.dart';
+import 'package:flutter_app/User_Side_Screens/chatbot/chatbot_screen.dart';
+import 'package:flutter_app/User_Side_Screens/home/dashboard_screen.dart';
+import 'package:flutter_app/User_Side_Screens/home/welcome_screen.dart';
+import 'package:flutter_app/User_Side_Screens/profile/profile_screen.dart';
+import 'package:flutter_app/loading_screen.dart';
 import 'package:flutter_app/theme/themes.dart';
 import 'package:get/get.dart';
 
@@ -18,15 +22,24 @@ class MyApp extends StatelessWidget {
       title: 'SmartShop',
       theme: AppTheme.getThemes(),
       debugShowCheckedModeBanner: false,
-      initialRoute: '/welcome',
+      initialRoute: '/loading',
       getPages: [
+        GetPage(name: "/loading", page: () => const LoadingScreen()),
         GetPage(name: '/welcome', page: () => const WelcomeScreen()),
-        GetPage(name: '/dashboard', page: () => const DashboardScreen()),
+        GetPage(name: '/dashboard', page: () => DashboardScreen()),
         GetPage(name: '/signin', page: () => SignInScreen()),
         GetPage(name: '/signup', page: () => SignUpScreen()),
         GetPage(name: '/cart', page: () => CartScreen()),
         GetPage(name: '/checkoutscreen', page: () => CheckoutScreen()),
         GetPage(name: '/account', page: () => ProfileScreen()),
+        GetPage(name: '/chatbot', page: () => ChatScreen()),
+        GetPage(name: '/forgetpass', page: () => ForgotPasswordScreen()),
+        GetPage(name: '/admin/login', page: () => const AdminLoginScreen()),
+
+        // GetPage(
+        //   name: '/admin/dashboard',
+        //   page: () => const AdminDashboardScreen(),
+        // ), // create next
       ],
     );
   }
