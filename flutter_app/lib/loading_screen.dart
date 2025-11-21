@@ -27,19 +27,19 @@ class _LoadingScreenState extends State<LoadingScreen> {
       return;
     }
 
-    // 1️⃣ CHECK ADMINS COLLECTION FIRST
-    final adminDoc =
+    // 1️⃣ CHECK EMPLOYEE COLLECTION
+    final employeeDoc =
         await FirebaseFirestore.instance
-            .collection("admin")
+            .collection("employees")
             .doc(user.uid)
             .get();
 
-    if (adminDoc.exists) {
-      Get.offAllNamed("/admin/dashboard");
+    if (employeeDoc.exists) {
+      Get.offAllNamed("/employee/dashboard");
       return;
     }
 
-    // 2️⃣ THEN CHECK USERS COLLECTION
+    // 2️⃣ CHECK NORMAL USERS COLLECTION
     final userDoc =
         await FirebaseFirestore.instance
             .collection("Users")
@@ -51,7 +51,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       return;
     }
 
-    // 3️⃣ IF NONE MATCH → force login
+    // 3️⃣ IF NO ROLE FOUND → GO TO SIGN IN
     Get.offAllNamed("/signin");
   }
 
@@ -93,7 +93,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
 
             const SizedBox(height: 30),
 
-            // Progress Indicator
+            // Loading indicator
             CircularProgressIndicator(
               strokeWidth: 3,
               color: Colors.blue.shade700,

@@ -3,8 +3,8 @@ import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
-  const AdminDashboardScreen({super.key});
+class EmployeeDashboardScreen extends StatelessWidget {
+  const EmployeeDashboardScreen({super.key});
 
   void _logout() async {
     await FirebaseAuth.instance.signOut();
@@ -18,7 +18,10 @@ class AdminDashboardScreen extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         backgroundColor: AppColors.appbar,
-        title: const Text("ADMIN PANEL", style: TextStyle(color: Colors.white)),
+        title: const Text(
+          "EMPLOYEE PANEL",
+          style: TextStyle(color: Colors.white),
+        ),
         elevation: 5,
         automaticallyImplyLeading: false,
         actions: [
@@ -29,7 +32,7 @@ class AdminDashboardScreen extends StatelessWidget {
         ],
       ),
 
-      // Curved top body (same theme as user dashboard)
+      // Curved top body
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(25),
@@ -42,12 +45,12 @@ class AdminDashboardScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                "Welcome Admin 👋",
+                "Welcome Employee 👋",
                 style: TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 15),
               const Text(
-                "Manage everything in SmartShop from here.",
+                "Manage your assigned tasks and orders here.",
                 style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
               const SizedBox(height: 25),
@@ -60,41 +63,41 @@ class AdminDashboardScreen extends StatelessWidget {
                   crossAxisSpacing: 16,
                   mainAxisSpacing: 16,
                   children: [
-                    _adminCard(
+                    _employeeCard(
                       icon: Icons.shopping_bag,
-                      label: "Manage Products",
+                      label: "View Products",
                       color: Colors.deepPurple,
-                      onTap: () => Get.toNamed('/admin/products'),
+                      onTap: () => Get.toNamed('/employee/products'),
                     ),
-                    _adminCard(
+                    _employeeCard(
                       icon: Icons.category,
-                      label: "Manage Categories",
+                      label: "View Categories",
                       color: Colors.blue,
-                      onTap: () => Get.toNamed('/admin/categories'),
+                      onTap: () => Get.toNamed('/employee/categories'),
                     ),
-                    _adminCard(
-                      icon: Icons.people,
-                      label: "Manage Users",
-                      color: Colors.green,
-                      onTap: () => Get.toNamed('/admin/users'),
-                    ),
-                    _adminCard(
+                    _employeeCard(
                       icon: Icons.receipt_long,
                       label: "Orders",
                       color: Colors.orange,
-                      onTap: () => Get.toNamed('/admin/orders'),
+                      onTap: () => Get.toNamed('/employee/orders'),
                     ),
-                    _adminCard(
+                    _employeeCard(
                       icon: Icons.discount,
                       label: "Discounts",
                       color: Colors.redAccent,
-                      onTap: () => Get.toNamed('/admin/discounts'),
+                      onTap: () => Get.toNamed('/employee/discounts'),
                     ),
-                    _adminCard(
+                    _employeeCard(
                       icon: Icons.analytics,
                       label: "Analytics",
                       color: Colors.indigo,
-                      onTap: () => Get.toNamed('/admin/analytics'),
+                      onTap: () => Get.toNamed('/employee/analytics'),
+                    ),
+                    _employeeCard(
+                      icon: Icons.person,
+                      label: "Profile",
+                      color: Colors.green,
+                      onTap: () => Get.toNamed('/employee/profile'),
                     ),
                   ],
                 ),
@@ -106,8 +109,8 @@ class AdminDashboardScreen extends StatelessWidget {
     );
   }
 
-  // ⚡ Admin Dashboard Cards (same design approach as user side)
-  Widget _adminCard({
+  // ⚡ Employee Dashboard Cards
+  Widget _employeeCard({
     required IconData icon,
     required String label,
     required Color color,

@@ -72,7 +72,7 @@ class RoleSelectionScreen extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Admin Button
+            // Employee Button
             GestureDetector(
               onTap: () => Get.offAllNamed("/employee/login"),
               child: Container(

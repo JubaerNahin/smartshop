@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/Employee_Side_Screens/screens/auth/employee_login_screen.dart';
+import 'package:flutter_app/Employee_Side_Screens/screens/auth/employee_signup_screen.dart';
 import 'package:flutter_app/Employee_Side_Screens/screens/dashboard/employee_dashoboard_screen.dart';
 import 'package:flutter_app/User_Side_Screens/authentication/forgot_password_screen.dart';
 import 'package:flutter_app/User_Side_Screens/authentication/sign_in_screen.dart';
@@ -36,11 +37,18 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/account', page: () => ProfileScreen()),
         GetPage(name: '/chatbot', page: () => ChatScreen()),
         GetPage(name: '/forgetpass', page: () => ForgotPasswordScreen()),
-        GetPage(name: '/admin/login', page: () => const AdminLoginScreen()),
+        GetPage(
+          name: '/employee/login',
+          page: () => const EmployeeSignInScreen(),
+        ),
         GetPage(name: '/role', page: () => const RoleSelectionScreen()),
         GetPage(
-          name: '/admin/dashboard',
-          page: () => const AdminDashboardScreen(),
+          name: '/employee/dashboard',
+          page: () => const EmployeeDashboardScreen(),
+        ),
+        GetPage(
+          name: '/employee/signup',
+          page: () => const EmployeeSignUpScreen(),
         ),
       ],
     );

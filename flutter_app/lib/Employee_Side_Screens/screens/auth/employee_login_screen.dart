@@ -1,26 +1,30 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../controllers/admin_auth_controller.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../utils/app_colors.dart';
-import '../../../widgets/my_button.dart';
 import '../../../widgets/my_textfield.dart';
+import '../../../widgets/my_button.dart';
+import '../../controllers/employee_auth_controller.dart';
 
-class AdminLoginScreen extends StatefulWidget {
-  const AdminLoginScreen({super.key});
+class EmployeeSignInScreen extends StatefulWidget {
+  const EmployeeSignInScreen({super.key});
 
   @override
-  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
+  State<EmployeeSignInScreen> createState() => _EmployeeSignInScreenState();
 }
 
-class _AdminLoginScreenState extends State<AdminLoginScreen> {
-  final AdminAuthController authController = Get.put(AdminAuthController());
+class _EmployeeSignInScreenState extends State<EmployeeSignInScreen> {
+  final EmployeeAuthController authController = Get.put(
+    EmployeeAuthController(),
+  );
+
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  void _login() async {
+  void _signin() async {
     final email = emailController.text.trim();
     final pass = passwordController.text;
+
     if (email.isEmpty || pass.isEmpty) {
       Get.snackbar(
         'Error',
@@ -33,15 +37,18 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     }
 
     try {
+      showDialog(
+        context: context,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
       await authController.login(email, pass);
-      Get.offAllNamed('/admin/dashboard');
-    } on Exception catch (e) {
-      String msg = e.toString();
-      // If FirebaseAuthException, show its message
-      if (e is FirebaseAuthException) msg = e.message ?? e.code;
+      if (context.mounted) Navigator.pop(context);
+      Get.offAllNamed('/employee/dashboard');
+    } catch (e) {
+      Navigator.pop(context);
       Get.snackbar(
-        'Login failed',
-        msg,
+        'Login Failed',
+        e.toString(),
         snackPosition: SnackPosition.BOTTOM,
         backgroundColor: Colors.redAccent,
         colorText: Colors.white,
@@ -49,96 +56,71 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     }
   }
 
-  void _forgotPassword() {
-    final email = emailController.text.trim();
-    if (email.isEmpty) {
-      Get.snackbar(
-        'Info',
-        'Enter your email to receive reset link',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-    authController
-        .sendPasswordReset(email)
-        .then((_) {
-          Get.snackbar(
-            'Email Sent',
-            'A password reset link has been sent to $email',
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        })
-        .catchError((err) {
-          Get.snackbar(
-            'Error',
-            err.toString(),
-            snackPosition: SnackPosition.BOTTOM,
-          );
-        });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.appbar,
+      backgroundColor: AppColors.primarycolor,
       appBar: AppBar(
-        title: const Text('Admin Login'),
-        centerTitle: true,
-        backgroundColor: AppColors.appbar,
-        elevation: 4,
+        backgroundColor: AppColors.primarycolor,
+        title: Text('Employee Sign In', style: GoogleFonts.openSans()),
       ),
       body: SafeArea(
-        child: Obx(() {
-          final loading = authController.loading.value;
-          return Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: AppColors.primarycolor,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'SmartShop Employee',
+                  style: GoogleFonts.openSans(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                child: Column(
+                const SizedBox(height: 16),
+                MyTextfield(
+                  hintText: 'Email',
+                  controller: emailController,
+                  obsecureText: false,
+                ),
+                const SizedBox(height: 8),
+                MyTextfield(
+                  hintText: 'Password',
+                  controller: passwordController,
+                  obsecureText: true,
+                ),
+                const SizedBox(height: 16),
+                Obx(
+                  () =>
+                      authController.loading.value
+                          ? const CircularProgressIndicator()
+                          : MyButton(text: 'Sign In', onTap: _signin),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Smartshop Admin',
-                      style: TextStyle(
-                        color: AppColors.appbar,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                      "Don't have an account?",
+                      style: TextStyle(color: AppColors.textColor),
+                    ),
+                    GestureDetector(
+                      onTap: () => Get.toNamed('/employee/signup'),
+                      child: Text(
+                        " Sign Up",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.appbar,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    MyTextfield(
-                      hintText: 'Admin email',
-                      controller: emailController,
-                      obsecureText: false,
-                    ),
-                    const SizedBox(height: 12),
-                    MyTextfield(
-                      hintText: 'Password',
-                      controller: passwordController,
-                      obsecureText: true,
-                    ),
-                    const SizedBox(height: 16),
-                    loading
-                        ? const CircularProgressIndicator()
-                        : MyButton(text: 'Login', onTap: _login),
-                    const SizedBox(height: 12),
                   ],
                 ),
-              ),
+              ],
             ),
-          );
-        }),
+          ),
+        ),
       ),
     );
   }
