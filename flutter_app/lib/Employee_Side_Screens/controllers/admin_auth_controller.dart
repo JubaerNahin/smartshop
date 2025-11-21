@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_app/Admin_Side_Screens/models/admin_users.dart';
+import 'package:flutter_app/Employee_Side_Screens/models/admin_users.dart';
 import 'package:get/get.dart';
 
 class AdminAuthController extends GetxController {
@@ -39,7 +39,7 @@ class AdminAuthController extends GetxController {
       currentAdmin.value = adminUser;
       // Successful login: navigate to admin dashboard
       Get.offAllNamed('/admin/dashboard');
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       rethrow; // bubble up to caller for UI handling
     } finally {
       loading.value = false;

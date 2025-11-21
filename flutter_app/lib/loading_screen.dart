@@ -18,33 +18,41 @@ class _LoadingScreenState extends State<LoadingScreen> {
   }
 
   Future<void> _checkUserRole() async {
-    await Future.delayed(const Duration(seconds: 2)); // smart loading delay
+    await Future.delayed(const Duration(seconds: 2));
 
     final user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      Get.offAllNamed("/signin");
+      Get.offAllNamed("/role");
       return;
     }
 
-    final doc =
+    // 1️⃣ CHECK ADMINS COLLECTION FIRST
+    final adminDoc =
         await FirebaseFirestore.instance
-            .collection("users")
+            .collection("admin")
             .doc(user.uid)
             .get();
 
-    if (!doc.exists) {
-      Get.offAllNamed("/login");
+    if (adminDoc.exists) {
+      Get.offAllNamed("/admin/dashboard");
       return;
     }
 
-    final role = doc["role"];
+    // 2️⃣ THEN CHECK USERS COLLECTION
+    final userDoc =
+        await FirebaseFirestore.instance
+            .collection("Users")
+            .doc(user.uid)
+            .get();
 
-    if (role == "admin") {
-      Get.offAllNamed("/admin-dashboard");
-    } else {
+    if (userDoc.exists) {
       Get.offAllNamed("/dashboard");
+      return;
     }
+
+    // 3️⃣ IF NONE MATCH → force login
+    Get.offAllNamed("/signin");
   }
 
   @override

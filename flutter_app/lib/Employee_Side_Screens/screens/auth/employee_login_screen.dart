@@ -34,7 +34,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
     try {
       await authController.login(email, pass);
-      // on success login() navigates to /admin/dashboard
+      Get.offAllNamed('/admin/dashboard');
     } on Exception catch (e) {
       String msg = e.toString();
       // If FirebaseAuthException, show its message
@@ -109,7 +109,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 child: Column(
                   children: [
                     Text(
-                      'SmartShop Admin',
+                      'Smartshop Admin',
                       style: TextStyle(
                         color: AppColors.appbar,
                         fontSize: 22,
@@ -133,13 +133,6 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                         ? const CircularProgressIndicator()
                         : MyButton(text: 'Login', onTap: _login),
                     const SizedBox(height: 12),
-                    TextButton(
-                      onPressed: _forgotPassword,
-                      child: const Text(
-                        'Forgot password?',
-                        style: TextStyle(decoration: TextDecoration.underline),
-                      ),
-                    ),
                   ],
                 ),
               ),
