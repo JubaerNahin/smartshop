@@ -15,9 +15,7 @@ class SignInScreen extends StatefulWidget {
 }
 
 class _SignInScreenState extends State<SignInScreen> {
-  // text editing cpntroller
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
 
   void signin() async {
@@ -25,7 +23,7 @@ class _SignInScreenState extends State<SignInScreen> {
       context: context,
       builder: (context) => Center(child: const CircularProgressIndicator()),
     );
-    //sign in
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: emailController.text.trim(),

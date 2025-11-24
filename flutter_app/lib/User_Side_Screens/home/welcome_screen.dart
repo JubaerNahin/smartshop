@@ -20,21 +20,12 @@ class WelcomeScreen extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: AppColors.primarycolor,
-        // foregroundColor: AppColors.buttoncolors,
       ),
       body: SafeArea(
         child: Stack(
           children: [
-            // Background image
-            SizedBox.expand(
-              // child: Image.asset(
-              //   'assets/images/welcome_screen.jpg',
-              //   fit: BoxFit.cover,
-              // ),
-              child: Container(color: AppColors.primarycolor),
-            ),
+            SizedBox.expand(child: Container(color: AppColors.primarycolor)),
 
-            // Overlay content
             Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [

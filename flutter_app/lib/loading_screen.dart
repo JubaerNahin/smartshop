@@ -27,7 +27,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       return;
     }
 
-    // 1️⃣ CHECK EMPLOYEE COLLECTION
+    // CHECK EMPLOYEE COLLECTION
     final employeeDoc =
         await FirebaseFirestore.instance
             .collection("employees")
@@ -39,7 +39,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       return;
     }
 
-    // 2️⃣ CHECK NORMAL USERS COLLECTION
+    // CHECK USERS COLLECTION
     final userDoc =
         await FirebaseFirestore.instance
             .collection("Users")
@@ -51,7 +51,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
       return;
     }
 
-    // 3️⃣ IF NO ROLE FOUND → GO TO SIGN IN
     Get.offAllNamed("/signin");
   }
 
@@ -63,7 +62,6 @@ class _LoadingScreenState extends State<LoadingScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Logo
             Container(
               height: 120,
               width: 120,
