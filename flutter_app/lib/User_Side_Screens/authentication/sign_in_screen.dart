@@ -78,6 +78,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
                 //email test field
                 MyTextfield(
+                  key: const Key("emailField"),
                   hintText: 'E-mail',
                   obsecureText: false,
                   controller: emailController,
@@ -86,6 +87,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: 8),
                 // password textfield
                 MyTextfield(
+                  key: const Key("passwordField"),
                   hintText: 'Password',
                   obsecureText: true,
                   controller: passwordController,
@@ -110,6 +112,7 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: 8),
                 //sign in button
                 MyButton(
+                  key: const Key("signInButton"),
                   text: "Sign In",
                   onTap: () {
                     signin();

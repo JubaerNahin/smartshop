@@ -31,7 +31,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/welcome_screen.jpg
+    - assets/images/
 
   # fonts:
   #   - family: Schyler

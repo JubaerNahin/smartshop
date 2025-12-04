@@ -37,11 +37,11 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/account', page: () => ProfileScreen()),
         GetPage(name: '/chatbot', page: () => ChatScreen()),
         GetPage(name: '/forgetpass', page: () => ForgotPasswordScreen()),
+        GetPage(name: '/role', page: () => const RoleSelectionScreen()),
         GetPage(
           name: '/employee/login',
           page: () => const EmployeeSignInScreen(),
         ),
-        GetPage(name: '/role', page: () => const RoleSelectionScreen()),
         GetPage(
           name: '/employee/dashboard',
           page: () => const EmployeeDashboardScreen(),

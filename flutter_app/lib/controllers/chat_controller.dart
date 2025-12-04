@@ -12,6 +12,10 @@ class ChatController extends GetxController {
     _listenToMessages();
   }
 
+  void clearChat() {
+    messages.clear();
+  }
+
   void _listenToMessages() {
     _firestore
         .collection('chats')

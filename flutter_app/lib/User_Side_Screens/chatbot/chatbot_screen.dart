@@ -15,27 +15,6 @@ class _ChatScreenState extends State<ChatScreen> {
   final ChatController chatController = Get.put(ChatController());
   final TextEditingController textController = TextEditingController();
 
-  int _selectedIndex = 2; // Chat tab index
-
-  void _onItemTapped(int index) {
-    if (_selectedIndex == index) return;
-    setState(() => _selectedIndex = index);
-    switch (index) {
-      case 0:
-        Get.offNamed('/home');
-        break;
-      case 1:
-        Get.offNamed('/cart');
-        break;
-      case 2:
-        Get.offNamed('/chatbot');
-        break;
-      case 3:
-        Get.offNamed('/account');
-        break;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,6 +27,7 @@ class _ChatScreenState extends State<ChatScreen> {
         centerTitle: true,
         backgroundColor: AppColors.appbar,
       ),
+
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(25),
