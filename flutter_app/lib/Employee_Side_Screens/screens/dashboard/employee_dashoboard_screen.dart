@@ -3,6 +3,8 @@ import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../../../User_Side_Screens/models/products.dart';
+
 class EmployeeDashboardScreen extends StatelessWidget {
   const EmployeeDashboardScreen({super.key});
 
@@ -26,7 +28,9 @@ class EmployeeDashboardScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            onPressed: _logout,
+            onPressed: () {
+              Get.toNamed("/loading");
+            },
             icon: const Icon(Icons.logout, color: Colors.white),
           ),
         ],
@@ -67,13 +71,13 @@ class EmployeeDashboardScreen extends StatelessWidget {
                       icon: Icons.shopping_bag,
                       label: "View Products",
                       color: Colors.deepPurple,
-                      onTap: () => Get.toNamed('/employee/products'),
+                      onTap: () => Get.toNamed('/employee/view_product'),
                     ),
                     _employeeCard(
                       icon: Icons.category,
-                      label: "View Categories",
+                      label: "Add Products",
                       color: Colors.blue,
-                      onTap: () => Get.toNamed('/employee/categories'),
+                      onTap: () => Get.toNamed('/employee/add_products'),
                     ),
                     _employeeCard(
                       icon: Icons.receipt_long,
@@ -85,7 +89,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
                       icon: Icons.discount,
                       label: "Discounts",
                       color: Colors.redAccent,
-                      onTap: () => Get.toNamed('/employee/discounts'),
+                      onTap: () => Get.toNamed('/employee/discount'),
                     ),
                     _employeeCard(
                       icon: Icons.analytics,

@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_app/models/cart.dart';
+import 'package:flutter_app/User_Side_Screens/models/cart.dart';
 
 class OrderModel {
   final String id;

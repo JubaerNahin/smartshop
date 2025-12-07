@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/controllers/product_controller.dart';
-import 'package:flutter_app/models/products.dart';
-import 'package:flutter_app/User_Side_Screens/product/product_details_screen.dart';
+import 'package:flutter_app/User_Side_Screens/controllers/product_controller.dart';
+import 'package:flutter_app/User_Side_Screens/models/products.dart';
+import 'package:flutter_app/User_Side_Screens/Screens/product/product_details_screen.dart';
 import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';
 
@@ -33,16 +33,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
     setState(() => _selectedIndex = index);
     switch (index) {
       case 0:
-        Get.offNamed('/home');
+        Get.toNamed('/home');
         break;
       case 1:
-        Get.offNamed('/cart');
+        Get.toNamed('/cart');
         break;
       case 2:
-        Get.offNamed('/chatbot');
+        Get.toNamed('/chatbot');
         break;
       case 3:
-        Get.offNamed('/account');
+        Get.toNamed('/account');
         break;
     }
   }
@@ -288,12 +288,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Stack(
               children: [
-                Image.network(
-                  product.imageUrl,
-                  height: 110,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                ),
+                product.imageUrl == " "
+                    ? SizedBox(height: 110, child: const Placeholder())
+                    : Image.network(
+                      product.imageUrl,
+                      height: 110,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
                 if (hasDiscount)
                   Positioned(
                     top: 4,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/controllers/cart_controller.dart';
-import 'package:flutter_app/controllers/product_controller.dart';
-import 'package:flutter_app/models/cart.dart';
+import 'package:flutter_app/User_Side_Screens/controllers/cart_controller.dart';
+import 'package:flutter_app/User_Side_Screens/controllers/product_controller.dart';
+import 'package:flutter_app/User_Side_Screens/models/cart.dart';
 import 'package:flutter_app/widgets/my_button.dart';
 import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';

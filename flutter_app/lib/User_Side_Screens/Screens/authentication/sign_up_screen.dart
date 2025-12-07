@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/services/auth_services.dart';
+import 'package:flutter_app/User_Side_Screens/services/auth_services.dart';
 import 'package:flutter_app/utils/app_colors.dart';
 import 'package:flutter_app/widgets/my_button.dart';
 import 'package:flutter_app/widgets/my_textfield.dart';

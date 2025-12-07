@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/models/cart.dart';
+import 'package:flutter_app/User_Side_Screens/models/cart.dart';
 import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';
 import '../../controllers/cart_controller.dart';

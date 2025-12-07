@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_app/models/chat.dart';
+import 'package:flutter_app/User_Side_Screens/models/chat.dart';
 import 'package:get/get.dart';
 
 class ChatController extends GetxController {

@@ -194,11 +194,21 @@ class CheckoutScreen extends StatelessWidget {
                               'shippingAddress': address,
                             };
 
-                            await FirebaseFirestore.instance
+                            // 1️⃣ Add order to the user's personal orders
+                            final userOrderRef = await FirebaseFirestore
+                                .instance
                                 .collection('Users')
                                 .doc(uid)
                                 .collection('orders')
                                 .add(orderData);
+
+                            // 2️⃣ Add order to the general 'orders' collection for employees
+                            await FirebaseFirestore.instance
+                                .collection('orders')
+                                .doc(
+                                  userOrderRef.id,
+                                ) // use same ID for easy reference
+                                .set(orderData);
 
                             // Clear cart
                             final cartRef = FirebaseFirestore.instance

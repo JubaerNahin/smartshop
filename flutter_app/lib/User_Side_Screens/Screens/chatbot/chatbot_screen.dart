@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/controllers/chat_controller.dart';
+import 'package:flutter_app/User_Side_Screens/controllers/chat_controller.dart';
 import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:chat_bubbles/chat_bubbles.dart';
