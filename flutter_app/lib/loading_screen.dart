@@ -51,7 +51,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
       return;
     }
 
-    Get.offAllNamed("/signin");
+    Get.offAllNamed("/role");
   }
 
   @override

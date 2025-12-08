@@ -115,7 +115,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Get.toNamed('/signin');
+              Get.toNamed('/role');
             },
           ),
         ],
