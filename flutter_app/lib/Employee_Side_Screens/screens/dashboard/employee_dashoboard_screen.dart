@@ -3,8 +3,6 @@ import 'package:flutter_app/utils/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../../User_Side_Screens/models/products.dart';
-
 class EmployeeDashboardScreen extends StatelessWidget {
   const EmployeeDashboardScreen({super.key});
 

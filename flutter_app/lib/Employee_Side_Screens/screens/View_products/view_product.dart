@@ -15,65 +15,71 @@ class EmployeeViewProductScreen extends StatefulWidget {
 }
 
 class _EmployeeViewProductScreenState extends State<EmployeeViewProductScreen> {
-  late TextEditingController nameCtrl;
-  late TextEditingController priceCtrl;
-  late TextEditingController imageCtrl;
-  late TextEditingController sizeCtrl;
-  late TextEditingController stockCtrl;
-  late TextEditingController categoryCtrl;
-  late TextEditingController brandCtrl;
-  late TextEditingController ratingCtrl;
-  late TextEditingController descCtrl;
-  late TextEditingController discountCtrl;
-
+  late Map<String, TextEditingController> controllers;
   bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     final p = widget.product;
-    nameCtrl = TextEditingController(text: p.name);
-    priceCtrl = TextEditingController(text: p.price.toString());
-    imageCtrl = TextEditingController(text: p.imageUrl);
-    sizeCtrl = TextEditingController(text: p.sizes.join(","));
-    stockCtrl = TextEditingController(text: p.stock.toString());
-    categoryCtrl = TextEditingController(text: p.category);
-    brandCtrl = TextEditingController(text: p.brand);
-    ratingCtrl = TextEditingController(text: p.rating.toString());
-    descCtrl = TextEditingController(text: p.description);
-    discountCtrl = TextEditingController(text: p.discount.toString());
+    controllers = {
+      'name': TextEditingController(text: p.name),
+      'price': TextEditingController(text: p.price.toString()),
+      'imageUrl': TextEditingController(text: p.imageUrl),
+      'sizes': TextEditingController(text: p.sizes.join(",")),
+
+      'category': TextEditingController(text: p.category),
+      'brand': TextEditingController(text: p.brand),
+      'rating': TextEditingController(text: p.rating.toString()),
+      'description': TextEditingController(text: p.description),
+      'discount': TextEditingController(text: p.discount.toString()),
+      'tags': TextEditingController(text: p.tags.join(",")),
+      'soldCount': TextEditingController(text: p.soldCount.toString()),
+
+      'stockBySize': TextEditingController(
+        text: p.stockBySize.entries.map((e) => "${e.key}:${e.value}").join(","),
+      ),
+    };
   }
 
   @override
   void dispose() {
-    nameCtrl.dispose();
-    priceCtrl.dispose();
-    imageCtrl.dispose();
-    sizeCtrl.dispose();
-    stockCtrl.dispose();
-    categoryCtrl.dispose();
-    brandCtrl.dispose();
-    ratingCtrl.dispose();
-    descCtrl.dispose();
-    discountCtrl.dispose();
+    for (var ctrl in controllers.values) {
+      ctrl.dispose();
+    }
     super.dispose();
   }
 
   Future<void> updateProduct() async {
     setState(() => isLoading = true);
     try {
+      // Parse stockBySize
+      Map<String, int> stockBySizeMap = {};
+      for (var entry in controllers['stockBySize']!.text.split(',')) {
+        if (entry.contains(':')) {
+          final parts = entry.split(':');
+          stockBySizeMap[parts[0].trim()] = int.tryParse(parts[1].trim()) ?? 0;
+        }
+      }
+
       final updatedProduct = ProductModel(
         id: widget.product.id,
-        name: nameCtrl.text.trim(),
-        price: double.parse(priceCtrl.text.trim()),
-        imageUrl: imageCtrl.text.trim(),
-        sizes: sizeCtrl.text.split(",").map((e) => e.trim()).toList(),
-        stock: int.parse(stockCtrl.text.trim()),
-        category: categoryCtrl.text.trim(),
-        brand: brandCtrl.text.trim(),
-        rating: double.parse(ratingCtrl.text.trim()),
-        description: descCtrl.text.trim(),
-        discount: double.tryParse(discountCtrl.text.trim()) ?? 0.0,
+        name: controllers['name']!.text.trim(),
+        price: double.parse(controllers['price']!.text.trim()),
+        imageUrl: controllers['imageUrl']!.text.trim(),
+        sizes:
+            controllers['sizes']!.text.split(',').map((e) => e.trim()).toList(),
+
+        category: controllers['category']!.text.trim(),
+        brand: controllers['brand']!.text.trim(),
+        rating: double.tryParse(controllers['rating']!.text.trim()) ?? 0.0,
+        description: controllers['description']!.text.trim(),
+        discount: double.tryParse(controllers['discount']!.text.trim()) ?? 0.0,
+        tags:
+            controllers['tags']!.text.split(',').map((e) => e.trim()).toList(),
+        soldCount: int.tryParse(controllers['soldCount']!.text.trim()) ?? 0,
+
+        stockBySize: stockBySizeMap,
       );
 
       await FirebaseFirestore.instance
@@ -134,13 +140,6 @@ class _EmployeeViewProductScreenState extends State<EmployeeViewProductScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // final discount = double.tryParse(discountCtrl.text) ?? 0;
-    // final hasDiscount = discount > 0;
-    // final discountedPrice =
-    //     hasDiscount
-    //         ? double.tryParse(priceCtrl.text)! * (1 - discount / 100)
-    //         : double.tryParse(priceCtrl.text)!;
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.appbar,
@@ -159,27 +158,45 @@ class _EmployeeViewProductScreenState extends State<EmployeeViewProductScreen> {
             child: Column(
               children: [
                 // Product Image Preview
-                widget.product.imageUrl.isNotEmpty
+                controllers['imageUrl']!.text.isNotEmpty
                     ? Image.network(
-                      imageCtrl.text,
+                      controllers['imageUrl']!.text,
                       height: 150,
                       fit: BoxFit.cover,
                     )
                     : const SizedBox(height: 150, child: Placeholder()),
                 const SizedBox(height: 12),
 
-                inputField("Product Name", nameCtrl),
-                inputField("Price", priceCtrl, type: TextInputType.number),
-                inputField("Image URL", imageCtrl),
-                inputField("Sizes (comma separated)", sizeCtrl),
-                inputField("Stock", stockCtrl, type: TextInputType.number),
-                inputField("Category", categoryCtrl),
-                inputField("Brand", brandCtrl),
-                inputField("Rating", ratingCtrl, type: TextInputType.number),
-                inputField("Description", descCtrl),
+                inputField("Product Name", controllers['name']!),
+                inputField(
+                  "Price",
+                  controllers['price']!,
+                  type: TextInputType.number,
+                ),
+                inputField("Image URL", controllers['imageUrl']!),
+                inputField("Sizes (comma separated)", controllers['sizes']!),
+
+                inputField("Category", controllers['category']!),
+                inputField("Brand", controllers['brand']!),
+                inputField(
+                  "Rating",
+                  controllers['rating']!,
+                  type: TextInputType.number,
+                ),
+                inputField("Description", controllers['description']!),
                 inputField(
                   "Discount %",
-                  discountCtrl,
+                  controllers['discount']!,
+                  type: TextInputType.number,
+                ),
+                inputField("Tags (comma separated)", controllers['tags']!),
+                inputField(
+                  "Stock by Size (format: S:10,M:5,L:0)",
+                  controllers['stockBySize']!,
+                ),
+                inputField(
+                  "Sold Count",
+                  controllers['soldCount']!,
                   type: TextInputType.number,
                 ),
 
@@ -205,27 +222,6 @@ class _EmployeeViewProductScreenState extends State<EmployeeViewProductScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
-                // SizedBox(
-                //   width: double.infinity,
-                //   height: 48,
-                //   child: ElevatedButton(
-                //     onPressed: isLoading ? null : updateProduct,
-                //     style: ElevatedButton.styleFrom(
-                //       backgroundColor: AppColors.buttoncolors,
-                //       shape: RoundedRectangleBorder(
-                //         borderRadius: BorderRadius.circular(10),
-                //       ),
-                //     ),
-                //     child: isLoading
-                //         ? const CircularProgressIndicator(color: Colors.white)
-                //         : Text(
-                //             "Update Product - ৳${discountedPrice.toStringAsFixed(0)}",
-                //             style: const TextStyle(
-                //                 fontSize: 16, color: Colors.white),
-                //           ),
-                //   ),
-                // ),
               ],
             ),
           ),

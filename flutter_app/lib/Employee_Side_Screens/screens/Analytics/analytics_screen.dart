@@ -33,8 +33,9 @@ class EmployeeAnalyticsScreen extends StatelessWidget {
                           .collection('orders')
                           .snapshots(),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData)
+                    if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
+                    }
 
                     final orders = snapshot.data!.docs;
 
@@ -91,7 +92,7 @@ class EmployeeAnalyticsScreen extends StatelessWidget {
                         ),
                         ...statusCount.entries.map(
                           (e) => ListTile(
-                            title: Text("${e.key}"),
+                            title: Text(e.key),
                             trailing: Text("${e.value}"),
                           ),
                         ),
@@ -105,7 +106,7 @@ class EmployeeAnalyticsScreen extends StatelessWidget {
                         ),
                         ...top5Products.map(
                           (e) => ListTile(
-                            title: Text("${e.key}"),
+                            title: Text(e.key),
                             trailing: Text("Ordered: ${e.value}"),
                           ),
                         ),
@@ -123,8 +124,9 @@ class EmployeeAnalyticsScreen extends StatelessWidget {
                           .collectionGroup('cart')
                           .snapshots(),
                   builder: (context, snapshot) {
-                    if (!snapshot.hasData)
+                    if (!snapshot.hasData) {
                       return const CircularProgressIndicator();
+                    }
 
                     final cartItems = snapshot.data!.docs;
 
@@ -154,7 +156,7 @@ class EmployeeAnalyticsScreen extends StatelessWidget {
                         ),
                         ...top5Interested.map(
                           (e) => ListTile(
-                            title: Text("${e.key}"),
+                            title: Text(e.key),
                             trailing: Text("In Carts: ${e.value}"),
                           ),
                         ),

@@ -1,68 +1,71 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter_app/User_Side_Screens/models/chat.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 
 class ChatController extends GetxController {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  RxList<ChatMessage> messages = <ChatMessage>[].obs;
+  // Reactive list of messages
+  var messages = <ChatMessage>[].obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-    _listenToMessages();
-  }
+  // Backend URL (update for emulator/device as needed)
+  final String backendUrl = "http://10.0.2.2:8000/chat";
 
-  void clearChat() {
-    messages.clear();
-  }
-
-  void _listenToMessages() {
-    _firestore
-        .collection('chats')
-        .orderBy('timestamp', descending: false)
-        .snapshots()
-        .listen((snapshot) {
-          messages.value =
-              snapshot.docs
-                  .map((doc) => ChatMessage.fromMap(doc.data()))
-                  .toList();
-        });
-  }
-
+  /// Sends a message from the user to the backend and receives a reply
   Future<void> sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
-    final userMsg = ChatMessage(
+    // Add user message with timestamp
+    final userMessage = ChatMessage(
       message: text,
       isUser: true,
       timestamp: DateTime.now(),
     );
+    messages.add(userMessage);
 
-    await _firestore.collection('chats').add(userMsg.toMap());
-
-    // Simulate SmartShop AI reply
-    Future.delayed(const Duration(seconds: 1), () async {
-      final aiResponse = ChatMessage(
-        message: generateSmartShopResponse(text),
-        isUser: false,
-        timestamp: DateTime.now(),
+    try {
+      // Send request to backend
+      final response = await http.post(
+        Uri.parse(backendUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"message": text}),
       );
-      await _firestore.collection('chats').add(aiResponse.toMap());
-    });
-  }
 
-  String generateSmartShopResponse(String userText) {
-    final text = userText.toLowerCase();
-    if (text.contains('t-shirt')) {
-      return 'We have trendy SmartShop T-shirts starting at \$15!';
-    } else if (text.contains('discount')) {
-      return 'Good news! 🎉 SmartShop is offering 20% off this week!';
-    } else if (text.contains('hello') || text.contains('hi')) {
-      return 'Hello 👋! Welcome to SmartShop — your personal shopping assistant!';
-    } else if (text.contains('shoes')) {
-      return 'We’ve got stylish shoes in all sizes and colors. Want to see them? 👟';
-    } else {
-      return 'I’m not sure, but I’ll help you find it on SmartShop!';
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final replyText =
+            data["reply"]?.toString() ?? "No response from server.";
+
+        // Add bot reply with timestamp
+        messages.add(
+          ChatMessage(
+            message: replyText,
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
+      } else {
+        // Handle server errors
+        messages.add(
+          ChatMessage(
+            message: "Server error: ${response.statusCode}",
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
+      }
+    } catch (e) {
+      // Handle network/connection errors
+      messages.add(
+        ChatMessage(
+          message: "Connection error: $e",
+          isUser: false,
+          timestamp: DateTime.now(),
+        ),
+      );
     }
   }
+
+  /// Optional: Clears all messages
+  void clearMessages() => messages.clear();
 }

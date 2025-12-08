@@ -1,0 +1,13 @@
+// {
+//     "type": "service_account",
+//     "project_id": "smartshop-b3aba",
+//     "private_key_id": "415ddff0e9f1123e387497dfd45d1d1c435e1f75",
+//     "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDL5oL0dSxkH/Aq\n+VjTIl5ihD7wnU1jlprbSh3lQcR5TEQT6K1s5EAR5+qaXFLN7CaOmrqClacLvErd\nf3brnJby8B7nYi76JR1Za7Q86jKRpDsRQZQG8eqw4zvgnu8PDNdWAQzCvTlVn9BB\n+uZjCHPjTTJ3tzsLDgO9jsrCEhrtOTWe4+XTZ2eUmxy9a4iTdaK+6jNJXB2yDOJl\nJ+yU6ScUPYtGFv25HlR0nO0A5XtI2CKl1Sn8mDA7/ZJK8dVGTAMwx0I54wgiIWPQ\n8wpbfCvojxiFu8F58y59qV3nlSib/BOtzh6Zkd+WlqEBN+liSJeRI6W0rmJrBZ1G\nIkfuGSvNAgMBAAECggEAN2ebjfGI7mv/Rq4ahMSCASMONzOHI9h4m724AeOtD4i5\ntu8ysLQU9Mif5vHPTkUs9PL2WyVvDrFLZoSMO9mA6uJ0g0samL4dC39IqoS42PpX\nUokPQBPcQdR9ILwPGXfTy3rdjMz+F1YlsMgMcjyJwOnpHL6dPJPCUG/MiI+C4ZJ9\npjkfa1aLSqgCBbeYp5N6RVYYlIg0cNivNIBn2NINc21efRSaPrBvGZxSTtVonNp7\nBcA62PR75lRrAbXvww73IcAbRxalMO+G4E/VaG6IVyQXoMRSpS/cicQvIKmRzCdk\nxfTUWzs5PCFdPIwmLcoTz1yfBNxpkO8qLSYek9sdwQKBgQDzXLxxZ6l9s3oV/rzQ\n1p7JEL1EdzRCbG8QbN7sbkkESwtHmvyqP9qKnmgZOyGYlVYbYuaS/ttn5gfUBlj0\nlpcUUHQBWVo69fUEhxDLQ5TTviioMlNBZayW657C0SIqJi7FnPSpr77N7BOm5mwi\nvwZDXcrwevVuURpIsQgXf1NnhwKBgQDWfStIp7A/bO1Sc1TOwB1vv+GFGBEvyP4x\ndsuyvDgU6BeORWT5Q0oHy3Y1XbCwERO9p76CY2k4MdgNiG+vVcqjMWoRKWtp7gDJ\nyPt3GMRfNt82EE3FLNnF5NWTbX9hDT7qgpDbCVd9bz84PLPQ2GMye8sLsANE318Y\nX4GGUAq/CwKBgCYQzF0EtOs3hpIoLUqRN3cFykUKTD9TjK/KB7h9q6gjQNlrcbgD\nkuB51JiVujSOr1BLUPuPJ6yBu5m7gHCJmYoQ54RKgKWWUUPrCIJyyLWyGdPtQz6I\nc82Lf2LDqY9kN46rdU2Rcsvs8En74tAwhv9EjXi+EuO1heH25ugd/2LDAoGATXQx\n1zDG0oCRSr7fFzIE7z/JPnisbCcWs+IEOO0DC3msV/HzPpfv+dSdQTQuA8aG7GvQ\nveEMNAC71lc4jYZbgIbtmHjukvghTLzJIf7NmtyDylAk5VkG4xF5lp1p7DAOUj0H\n9jDvaRptJ++zt20MlURi1DuhUpOfEXwbl9b7qnUCgYBhoRndqpftfem/9o9ubi7/\n25z6foOdaSxdxx3HJvWE+Oy63d/PTN/pE8fXK7rIreFnr2DC5Fn90SM/McfHz+VL\n9unH04hWa4U2awX3j6FSuk1n6rN412pNl4DLfozLua3JimADVNc0mQzvbEm0+Xml\nd87tO4BUlGVbqpd2xBcvhg==\n-----END PRIVATE KEY-----\n",
+//     "client_email": "firebase-adminsdk-fbsvc@smartshop-b3aba.iam.gserviceaccount.com",
+//     "client_id": "112100952600698050330",
+//     "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+//     "token_uri": "https://oauth2.googleapis.com/token",
+//     "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+//     "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40smartshop-b3aba.iam.gserviceaccount.com",
+//     "universe_domain": "googleapis.com"
+// }

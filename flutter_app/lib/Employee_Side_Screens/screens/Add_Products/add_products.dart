@@ -20,12 +20,15 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final priceCtrl = TextEditingController();
   final imageCtrl = TextEditingController();
   final sizeCtrl = TextEditingController(); // input: "M,L,XL"
-  final stockCtrl = TextEditingController();
   final categoryCtrl = TextEditingController();
   final brandCtrl = TextEditingController();
   final ratingCtrl = TextEditingController();
   final descCtrl = TextEditingController();
   final discountCtrl = TextEditingController();
+  // Inside _AddProductScreenState
+  final tagsCtrl = TextEditingController(); // input: "tshirt, red, cotton"
+  final stockBySizeCtrl = TextEditingController(); // input: "S:10,M:5,L:0"
+  final soldCountCtrl = TextEditingController(); // input: total sold
 
   bool isLoading = false;
 
@@ -37,13 +40,22 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
       final id = FirebaseFirestore.instance.collection('products').doc().id;
 
+      // Parse stock_by_size from user input
+      Map<String, int> stockBySizeMap = {};
+      for (var entry in stockBySizeCtrl.text.split(',')) {
+        if (entry.contains(':')) {
+          final parts = entry.split(':');
+          stockBySizeMap[parts[0].trim()] = int.tryParse(parts[1].trim()) ?? 0;
+        }
+      }
+
       final model = ProductModel(
         id: id,
         name: nameCtrl.text.trim(),
         price: double.parse(priceCtrl.text.trim()),
         imageUrl: imageCtrl.text.trim(),
-        sizes: sizeCtrl.text.split(",").map((e) => e.trim()).toList(),
-        stock: int.parse(stockCtrl.text.trim()),
+        sizes: sizeCtrl.text.split(',').map((e) => e.trim()).toList(),
+        stockBySize: stockBySizeMap,
         category: categoryCtrl.text.trim(),
         brand: brandCtrl.text.trim(),
         rating: double.parse(ratingCtrl.text.trim()),
@@ -52,6 +64,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
             discountCtrl.text.trim().isEmpty
                 ? 0
                 : double.parse(discountCtrl.text.trim()),
+        soldCount:
+            soldCountCtrl.text.trim().isEmpty
+                ? 0
+                : int.parse(soldCountCtrl.text.trim()),
+        tags: tagsCtrl.text.split(',').map((e) => e.trim()).toList(),
       );
 
       await FirebaseFirestore.instance
@@ -84,12 +101,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
     priceCtrl.clear();
     imageCtrl.clear();
     sizeCtrl.clear();
-    stockCtrl.clear();
     categoryCtrl.clear();
     brandCtrl.clear();
     ratingCtrl.clear();
     descCtrl.clear();
     discountCtrl.clear();
+    tagsCtrl.clear();
+    stockBySizeCtrl.clear();
+    soldCountCtrl.clear();
   }
 
   Widget input(
@@ -155,7 +174,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   input("Price", priceCtrl, type: TextInputType.number),
                   input("Image URL", imageCtrl),
                   input("Sizes (comma separated: M,L,XL)", sizeCtrl),
-                  input("Stock", stockCtrl, type: TextInputType.number),
+
                   input("Category", categoryCtrl),
                   input("Brand", brandCtrl),
                   input("Rating (0-5)", ratingCtrl, type: TextInputType.number),
@@ -163,6 +182,16 @@ class _AddProductScreenState extends State<AddProductScreen> {
                   input(
                     "Discount % (optional)",
                     discountCtrl,
+                    type: TextInputType.number,
+                  ),
+                  input("Tags (comma separated)", tagsCtrl),
+                  input(
+                    "Stock by size (format: S:10,M:5,L:0)",
+                    stockBySizeCtrl,
+                  ),
+                  input(
+                    "Sold count",
+                    soldCountCtrl,
                     type: TextInputType.number,
                   ),
 
