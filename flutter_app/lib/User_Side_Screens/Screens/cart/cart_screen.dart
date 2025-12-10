@@ -120,10 +120,6 @@ class _CartScreenState extends State<CartScreen> {
                           onPressed: () {
                             // Navigate to DashboardScreen with Home tab selected
                             Get.offNamed('/checkoutscreen');
-                            Get.snackbar(
-                              "Success",
-                              "Proceeding to Dashboard Home...",
-                            );
                           },
                           child: const Text("Checkout"),
                         ),

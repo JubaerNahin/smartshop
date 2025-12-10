@@ -71,8 +71,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: AppColors.appbar,
         elevation: 6,
         automaticallyImplyLeading: false,
-
-        // 🔍 SEARCH UI HERE
         title:
             isSearching
                 ? _buildSearchField()
@@ -80,14 +78,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   'S M A R T S H O P',
                   style: TextStyle(color: Colors.white),
                 ),
-
         actions: [
           if (!isSearching)
             IconButton(
               icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: () {
-                setState(() => isSearching = true);
-              },
+              onPressed: () => setState(() => isSearching = true),
             )
           else
             IconButton(
@@ -134,10 +129,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 filteredProducts = List.from(allProducts);
               }
 
+              // 🔥 Sort Popular Products by Rating (High → Low)
+              final popularProducts = List<ProductModel>.from(filteredProducts);
+              popularProducts.sort((a, b) => b.rating.compareTo(a.rating));
+
               final discountedProducts =
                   filteredProducts.where((p) => (p.discount ?? 0) > 0).toList();
 
-              return _buildDashboard(filteredProducts, discountedProducts);
+              return _buildDashboard(
+                filteredProducts,
+                discountedProducts,
+                popularProducts,
+              );
             },
           ),
         ),
@@ -147,7 +150,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  //  The Search TextField inside AppBar
   Widget _buildSearchField() {
     return TextField(
       autofocus: true,
@@ -165,13 +167,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildDashboard(
     List<ProductModel> products,
     List<ProductModel> discountedProducts,
+    List<ProductModel> popularProducts,
   ) {
     return searchQuery.isNotEmpty
         ? _buildSearchResults(products)
-        : _buildRegularDashboard(products, discountedProducts);
+        : _buildRegularDashboard(products, discountedProducts, popularProducts);
   }
 
-  //  Results when searching
   Widget _buildSearchResults(List<ProductModel> products) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -180,22 +182,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  //  Normal Dashboard UI
   Widget _buildRegularDashboard(
     List<ProductModel> products,
     List<ProductModel> discountedProducts,
+    List<ProductModel> popularProducts,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // 🔻 Discount Section
           const Text(
-            'Discount Products',
+            "Discount Products",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-
           SizedBox(
             height: 200,
             child: ListView.builder(
@@ -207,12 +209,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 22),
           const Text(
-            'Featured Products',
+            "Featured Products",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
-
           const SizedBox(height: 12),
           SizedBox(
             height: 200,
@@ -224,19 +225,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 22),
           const Text(
-            'Popular Products',
+            "⭐ Popular Products",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
+
+          // 🔥 Popular (sorted by rating)
           SizedBox(
             height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: products.length,
+              itemCount: popularProducts.length,
               itemBuilder:
-                  (context, index) => _buildProductCard(products[index]),
+                  (context, index) => _buildProductCard(popularProducts[index]),
             ),
           ),
         ],
@@ -262,7 +265,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  //  REUSED PRODUCT CARD
   Widget _buildProductCard(ProductModel product) {
     final discount = product.discount ?? 0;
     final hasDiscount = discount > 0;
@@ -288,7 +290,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Stack(
               children: [
-                product.imageUrl == " "
+                product.imageUrl.isEmpty
                     ? SizedBox(height: 110, child: const Placeholder())
                     : Image.network(
                       product.imageUrl,
@@ -296,6 +298,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       width: double.infinity,
                       fit: BoxFit.cover,
                     ),
+
                 if (hasDiscount)
                   Positioned(
                     top: 4,
@@ -321,8 +324,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
               ],
             ),
-
             const SizedBox(height: 8),
+
+            // Rating
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Row(
@@ -334,6 +338,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
 
             const SizedBox(height: 4),
+
+            // Price
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Row(
@@ -361,6 +367,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
 
             const SizedBox(height: 4),
+
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Text(
