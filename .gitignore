@@ -20,3 +20,4 @@ backend_ai/venv/
 # VS Code workspace
 .vscode/
 
+backend_ai/firebase_key.json 
