@@ -15,7 +15,6 @@ class EmployeeSignUpScreen extends StatefulWidget {
 }
 
 class _EmployeeSignUpScreenState extends State<EmployeeSignUpScreen> {
-  // Text editing controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();

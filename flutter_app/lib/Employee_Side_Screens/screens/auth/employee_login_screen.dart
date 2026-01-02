@@ -62,7 +62,9 @@ class _EmployeeSignInScreenState extends State<EmployeeSignInScreen> {
       backgroundColor: AppColors.primarycolor,
       appBar: AppBar(
         backgroundColor: AppColors.primarycolor,
-        title: Text('Employee Sign In', style: GoogleFonts.openSans()),
+        title: Center(
+          child: Text('Employee Sign In', style: GoogleFonts.openSans()),
+        ),
       ),
       body: SafeArea(
         child: Center(
@@ -91,12 +93,7 @@ class _EmployeeSignInScreenState extends State<EmployeeSignInScreen> {
                   obsecureText: true,
                 ),
                 const SizedBox(height: 16),
-                Obx(
-                  () =>
-                      authController.loading.value
-                          ? const CircularProgressIndicator()
-                          : MyButton(text: 'Sign In', onTap: _signin),
-                ),
+                MyButton(text: 'Sign In', onTap: _signin),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

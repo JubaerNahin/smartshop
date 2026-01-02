@@ -12,10 +12,11 @@ flutter_app/pubspec.lock
 backend_ai/__pycache__/
 backend_ai/.vscode/
 backend_ai/venv/
-backend_ai/.env
+
 
 # macOS
 .DS_Store
 
 # VS Code workspace
 .vscode/
+

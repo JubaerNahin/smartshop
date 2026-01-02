@@ -11,16 +11,23 @@ class EmployeeDiscountScreen extends StatefulWidget {
 }
 
 class _EmployeeDiscountScreenState extends State<EmployeeDiscountScreen> {
-  String filterStatus = 'all'; // options: all, active, expired
+  String filterStatus = 'all';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appbar,
       appBar: AppBar(
-        title: const Text("Discount Overview"),
+        title: const Text(
+          "Discount Overview",
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: AppColors.appbar,
         elevation: 6,
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: Icon(Icons.arrow_back, color: Colors.white),
+        ),
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
@@ -123,7 +130,10 @@ class _EmployeeDiscountScreenState extends State<EmployeeDiscountScreen> {
         });
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: isSelected ? Colors.deepPurple : Colors.grey[400],
+        backgroundColor:
+            isSelected
+                ? AppColors.appbar.withValues(alpha: 0.8)
+                : AppColors.navbar,
       ),
       child: Text(label),
     );

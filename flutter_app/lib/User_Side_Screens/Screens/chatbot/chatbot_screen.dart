@@ -19,6 +19,10 @@ class ChatScreen extends StatelessWidget {
           'SmartShop Assistant 💬',
           style: TextStyle(color: Colors.white),
         ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
         centerTitle: true,
         backgroundColor: AppColors.appbar,
       ),
@@ -111,7 +115,7 @@ class _ChatInput extends StatelessWidget {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.send, color: Colors.deepPurple),
+                icon: const Icon(Icons.send, color: AppColors.buttoncolors),
                 onPressed: () {
                   final text = controller.text.trim();
                   if (text.isNotEmpty) onSend(text);

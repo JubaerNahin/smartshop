@@ -15,20 +15,18 @@ class AddProductScreen extends StatefulWidget {
 class _AddProductScreenState extends State<AddProductScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // Controllers
   final nameCtrl = TextEditingController();
   final priceCtrl = TextEditingController();
   final imageCtrl = TextEditingController();
-  final sizeCtrl = TextEditingController(); // input: "M,L,XL"
+  final sizeCtrl = TextEditingController();
   final categoryCtrl = TextEditingController();
   final brandCtrl = TextEditingController();
   final ratingCtrl = TextEditingController();
   final descCtrl = TextEditingController();
   final discountCtrl = TextEditingController();
-  // Inside _AddProductScreenState
-  final tagsCtrl = TextEditingController(); // input: "tshirt, red, cotton"
-  final stockBySizeCtrl = TextEditingController(); // input: "S:10,M:5,L:0"
-  final soldCountCtrl = TextEditingController(); // input: total sold
+  final tagsCtrl = TextEditingController();
+  final stockBySizeCtrl = TextEditingController();
+  final soldCountCtrl = TextEditingController();
 
   bool isLoading = false;
 
@@ -40,7 +38,6 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
       final id = FirebaseFirestore.instance.collection('products').doc().id;
 
-      // Parse stock_by_size from user input
       Map<String, int> stockBySizeMap = {};
       for (var entry in stockBySizeCtrl.text.split(',')) {
         if (entry.contains(':')) {

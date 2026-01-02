@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_app/User_Side_Screens/controllers/cart_controller.dart';
 import 'package:flutter_app/User_Side_Screens/models/cart.dart';
-// Update import path if needed
 import 'package:flutter_app/User_Side_Screens/models/products.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +15,7 @@ class ProductController extends GetxController {
     fetchProducts();
   }
 
+  // Fetch all products from Firestore
   void fetchProducts() async {
     final snapshot =
         await FirebaseFirestore.instance.collection('products').get();
@@ -26,18 +26,19 @@ class ProductController extends GetxController {
     );
   }
 
+  // Load selected product and fetch recommended products
   void loadProduct(ProductModel product) {
     selectedProduct.value = product;
     fetchRecommended(product.category);
   }
 
+  // Fetch recommended products based on category (excluding the selected product)
   void fetchRecommended(String category) async {
-    // Example: fetch 2 other products from the same category
     final snapshot =
         await FirebaseFirestore.instance
             .collection('products')
             .where('category', isEqualTo: category)
-            .limit(3)
+            .limit(5)
             .get();
 
     recommendedProducts.assignAll(
@@ -48,6 +49,7 @@ class ProductController extends GetxController {
     );
   }
 
+  // Add product to cart
   void addToCart(CartItemModel item, int quantity) {
     final product = selectedProduct.value;
     if (product != null) {
@@ -56,7 +58,7 @@ class ProductController extends GetxController {
         productName: product.name,
         price: product.price * (1 - product.discount / 100),
         imageUrl: product.imageUrl,
-        size: product.sizes[0],
+        size: product.sizes.isNotEmpty ? product.sizes[0] : "",
         quantity: quantity,
         id: "",
       );
@@ -65,6 +67,7 @@ class ProductController extends GetxController {
     }
   }
 
+  // Try-On action
   void tryOn() {
     if (selectedProduct.value != null) {
       Get.snackbar(
@@ -74,6 +77,7 @@ class ProductController extends GetxController {
     }
   }
 
+  // Show reviews action
   void showReviews() {
     if (selectedProduct.value != null) {
       Get.snackbar(

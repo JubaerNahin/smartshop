@@ -1,10 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/utils/app_colors.dart';
-import 'package:flutter_app/widgets/editable_profile_field.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
-import '../../models/employee_users.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_app/utils/app_colors.dart';
+
+import '../../../widgets/my_button.dart';
 
 class EmployeeProfileScreen extends StatefulWidget {
   const EmployeeProfileScreen({super.key});
@@ -14,135 +14,164 @@ class EmployeeProfileScreen extends StatefulWidget {
 }
 
 class _EmployeeProfileScreenState extends State<EmployeeProfileScreen> {
+  final RxMap<String, dynamic> employee = RxMap<String, dynamic>({});
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController roleController = TextEditingController();
-
-  bool isLoading = true;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
     super.initState();
-    _loadEmployeeData();
+    _fetchEmployeeData();
   }
 
-  Future<void> _loadEmployeeData() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-
-    final doc = await _firestore.collection("employees").doc(uid).get();
-    if (doc.exists) {
-      final employee = EmployeeUser.fromMap(doc.id, doc.data()!);
-      nameController.text = employee.name;
-      emailController.text = employee.email;
-      roleController.text = employee.role;
-    }
-
-    setState(() {
-      isLoading = false;
-    });
-  }
-
-  Future<void> _updateProfile() async {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null) return;
-
+  void _fetchEmployeeData() async {
     try {
-      await _firestore.collection('employees').doc(uid).update({
-        'name': nameController.text,
-        'email': emailController.text,
-        'role': roleController.text,
-      });
+      final user = _auth.currentUser;
+      debugPrint("Current user: $user"); // <-- check current Firebase user
+      if (user != null) {
+        final snapshot =
+            await FirebaseFirestore.instance
+                .collection('Employees')
+                .where('email', isEqualTo: user.email)
+                .limit(1)
+                .get();
 
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null && emailController.text != user.email) {
-        await user.verifyBeforeUpdateEmail(emailController.text);
+        debugPrint("Snapshot docs: ${snapshot.docs}"); // <-- see Firestore docs
+
+        if (snapshot.docs.isNotEmpty) {
+          final doc = snapshot.docs.first;
+          employee.assignAll(doc.data());
+          debugPrint(
+            "Employee data loaded: ${employee.toString()}",
+          ); // <-- final data
+        } else {
+          Get.snackbar('Error', 'No employee data found');
+          debugPrint("No employee data found for email: ${user.email}");
+        }
+      } else {
+        debugPrint("No user is currently logged in.");
       }
-
-      Get.snackbar(
-        "Profile Updated",
-        "Your profile has been updated successfully",
-        snackPosition: SnackPosition.BOTTOM,
-      );
     } catch (e) {
-      Get.snackbar("Error", e.toString(), snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Error', 'Failed to load employee data: $e');
+      debugPrint("Error fetching employee data: $e");
     }
-  }
-
-  void _logout() async {
-    await FirebaseAuth.instance.signOut();
-    Get.offAllNamed('/welcome');
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.appbar,
-      appBar: AppBar(
-        backgroundColor: AppColors.appbar,
-        title: const Text(
-          'Employee Profile',
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: _logout,
-          ),
-        ],
-      ),
-      body:
-          isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(25),
-                  topRight: Radius.circular(25),
-                ),
-                child: Container(
-                  height: double.infinity,
-                  color: Colors.white,
-                  padding: const EdgeInsets.all(16),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        const CircleAvatar(
-                          radius: 60,
-                          child: Icon(Icons.person, size: 60),
-                        ),
-                        const SizedBox(height: 16),
-                        EditableProfileField(
-                          label: 'Name',
-                          value: nameController.text,
-                          onChanged: (val) => nameController.text = val,
-                        ),
-                        const SizedBox(height: 12),
-                        EditableProfileField(
-                          label: 'Email',
-                          value: emailController.text,
-                          onChanged: (val) => emailController.text = val,
-                        ),
+    final screenHeight = MediaQuery.of(context).size.height;
 
-                        const SizedBox(height: 24),
-                        ElevatedButton(
-                          onPressed: _updateProfile,
-                          style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 16,
-                              horizontal: 24,
-                            ),
-                            textStyle: const TextStyle(fontSize: 18),
-                          ),
-                          child: const Text('Save Changes'),
-                        ),
-                      ],
+    return Obx(() {
+      if (employee.isEmpty) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
+      return Scaffold(
+        backgroundColor: AppColors.appbar,
+        appBar: AppBar(
+          title: const Text(
+            "Employee Profile",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: AppColors.appbar,
+          elevation: 6,
+          automaticallyImplyLeading: true,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Get.back(),
+          ),
+        ),
+        body: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(25),
+            topRight: Radius.circular(25),
+          ),
+          child: Container(
+            color: AppColors.primarycolor,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Profile placeholder
+                SizedBox(
+                  height: screenHeight * 0.25,
+                  width: screenHeight * 0.25,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.grey.shade300,
+                    radius:
+                        (screenHeight * 0.25) /
+                        2, // radius is half of height/width
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/images/employee_image.jpg',
+                        fit:
+                            BoxFit
+                                .cover, // ensures the image fills the circle without distortion
+                        width: double.infinity,
+                        height: double.infinity,
+                      ),
                     ),
                   ),
                 ),
-              ),
+
+                const SizedBox(height: 16),
+
+                // Name and Email
+                SizedBox(height: 32),
+
+                _buildInfoRow("Name", employee['name'] ?? ''),
+                SizedBox(height: 8),
+
+                _buildInfoRow("Email", employee['email'] ?? ''),
+                SizedBox(height: 8),
+
+                _buildInfoRow("Role", employee['role'] ?? 'Employee'),
+                SizedBox(height: 32),
+                MyButton(
+                  text: "Logout",
+                  onTap: () async {
+                    try {
+                      // Sign out from Firebase
+                      await FirebaseAuth.instance.signOut();
+
+                      // Show confirmation (optional)
+                      Get.snackbar(
+                        "Logout",
+                        "Employee logged out successfully",
+                        snackPosition: SnackPosition.TOP,
+                      );
+
+                      // Redirect to login or role selection screen
+                      Get.offNamed('/role'); // replace with your actual route
+                    } catch (e) {
+                      Get.snackbar(
+                        "Error",
+                        "Logout failed: $e",
+                        snackPosition: SnackPosition.BOTTOM,
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildInfoRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Text(
+            "$title: ",
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          Expanded(child: Text(value, style: const TextStyle(fontSize: 16))),
+        ],
+      ),
     );
   }
 }

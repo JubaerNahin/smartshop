@@ -32,23 +32,32 @@ class ProductModel {
   });
 
   factory ProductModel.fromMap(String id, Map<String, dynamic> data) {
+    String parseString(dynamic v) => v?.toString() ?? '';
+
+    double parseDouble(dynamic v) => v == null ? 0.0 : (v as num).toDouble();
+
+    int parseInt(dynamic v) =>
+        v == null
+            ? 0
+            : (v is num ? v.toInt() : int.tryParse(v.toString()) ?? 0);
+
     return ProductModel(
       id: id,
-      name: data['name'],
-      price: (data['price'] as num).toDouble(),
-      imageUrl: data['imageUrl'],
+      name: parseString(data['name']),
+      price: parseDouble(data['price']),
+      imageUrl: parseString(data['imageUrl']),
       sizes: List<String>.from(data['sizes'] ?? []),
-      stockBySize: Map<String, int>.from(data['stock_by_size'] ?? {}),
-      category: data['category'],
-      brand: data['brand'],
-      rating: (data['rating'] as num).toDouble(),
-      description: data['description'],
-      discount:
-          (data['discount'] != null)
-              ? (data['discount'] as num).toDouble()
-              : 0.0,
-      soldCount: data['sold_count'] ?? 0,
-
+      stockBySize: Map<String, int>.from(
+        (data['stock_by_size'] ?? {}).map(
+          (k, v) => MapEntry(k.toString(), parseInt(v)),
+        ),
+      ),
+      category: parseString(data['category']),
+      brand: parseString(data['brand']),
+      rating: parseDouble(data['rating']),
+      description: parseString(data['description']),
+      discount: parseDouble(data['discount']),
+      soldCount: parseInt(data['sold_count']),
       tags: List<String>.from(data['tags'] ?? []),
     );
   }

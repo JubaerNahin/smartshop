@@ -1,9 +1,14 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:flutter_app/utils/app_colors.dart';
 import 'package:flutter_app/widgets/editable_profile_field.dart';
-import 'package:get/get.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,15 +21,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   int _selectedIndex = 3;
 
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController shippingaddressController =
-      TextEditingController();
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final phoneController = TextEditingController();
+  final addressController = TextEditingController();
+  final shippingController = TextEditingController();
 
-  String imageUrl = '';
+  String localImagePath = ''; // stored locally
 
   @override
   void initState() {
@@ -43,9 +47,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
       emailController.text = data['email'] ?? '';
       phoneController.text = data['phone'] ?? '';
       addressController.text = data['address'] ?? '';
-      shippingaddressController.text = data['shippingAddress'] ?? '';
-      imageUrl = data['imageUrl'] ?? '';
+      shippingController.text = data['shippingAddress'] ?? '';
+      localImagePath = data['imagePath'] ?? '';
+
       setState(() {});
+    }
+  }
+
+  /// Pick Image + Save Locally
+
+  Future<void> pickImage() async {
+    var status = await Permission.photos.request(); // Android 13+
+
+    if (!status.isGranted) {
+      Get.snackbar(
+        "Permission Required",
+        "Please allow photo access to upload profile",
+      );
+      return;
+    }
+
+    try {
+      final picker = ImagePicker();
+      XFile? picked = await picker.pickImage(source: ImageSource.gallery);
+
+      if (picked == null) return;
+
+      final dir = await getApplicationDocumentsDirectory();
+      final File saved = File(
+        "${dir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg",
+      );
+      await File(picked.path).copy(saved.path);
+
+      setState(() => localImagePath = saved.path);
+    } catch (e) {
+      Get.snackbar("Error", "Image selection failed!");
+      debugPrint(e.toString());
     }
   }
 
@@ -59,20 +96,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'email': emailController.text,
         'phone': phoneController.text,
         'address': addressController.text,
-        'imageUrl': imageUrl,
-        'shippingAddress': shippingaddressController.text,
+        'shippingAddress': shippingController.text,
+        'imagePath': localImagePath,
       });
 
       if (emailController.text != user.email) {
-        await user.updateEmail(emailController.text);
+        await user.verifyBeforeUpdateEmail(emailController.text);
       }
       if (passwordController.text.isNotEmpty) {
         await user.updatePassword(passwordController.text);
       }
 
       Get.snackbar(
+        "Success",
         "Profile Updated",
-        "Your profile has been updated successfully",
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
@@ -81,7 +118,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _onItemTapped(int index) {
-    if (_selectedIndex == index) return;
     setState(() => _selectedIndex = index);
     switch (index) {
       case 0:
@@ -106,8 +142,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: AppColors.appbar,
         title: const Text(
-          'User Profile',
-          style: TextStyle(color: Colors.white),
+          "My Profile",
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
         ),
         centerTitle: true,
         actions: [
@@ -115,96 +155,143 @@ class _ProfileScreenState extends State<ProfileScreen> {
             icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-              Get.toNamed('/signin');
+              Get.toNamed('/role');
             },
           ),
         ],
       ),
+
       body: ClipRRect(
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(25),
-          topRight: Radius.circular(25),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         child: Container(
-          height: double.infinity,
+          padding: const EdgeInsets.all(20),
           color: Colors.white,
-          padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
           child: SingleChildScrollView(
             child: Column(
               children: [
-                CircleAvatar(
-                  radius: 60,
-                  backgroundImage:
-                      imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
-                  child:
-                      imageUrl.isEmpty
-                          ? const Icon(Icons.person, size: 60)
-                          : null,
+                // Profile Image
+                GestureDetector(
+                  onTap: pickImage,
+                  child: Stack(
+                    alignment: Alignment.bottomRight,
+                    children: [
+                      CircleAvatar(
+                        radius: 65,
+                        backgroundColor: Colors.grey.shade200,
+                        backgroundImage:
+                            localImagePath.isNotEmpty
+                                ? FileImage(
+                                  File(localImagePath),
+                                ) // user-picked image
+                                : AssetImage('assets/images/person_image.jpg')
+                                    as ImageProvider, // default asset
+                        child:
+                            localImagePath.isEmpty
+                                ? null // remove Icon if using default asset image
+                                : null,
+                      ),
+                      CircleAvatar(
+                        radius: 22,
+                        backgroundColor: AppColors.buttoncolors,
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                EditableProfileField(
-                  label: 'Name',
-                  value: nameController.text,
-                  onChanged: (val) => nameController.text = val,
+
+                const SizedBox(height: 20),
+
+                // Profile Fields Card
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 8,
+                        offset: Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      EditableProfileField(
+                        label: "Name",
+                        value: nameController.text,
+                        onChanged: (v) => nameController.text = v,
+                      ),
+                      const SizedBox(height: 12),
+                      EditableProfileField(
+                        label: "Email",
+                        value: emailController.text,
+                        onChanged: (v) => emailController.text = v,
+                      ),
+                      const SizedBox(height: 12),
+                      EditableProfileField(
+                        label: "Password",
+                        obscure: true,
+                        value: passwordController.text,
+                        onChanged: (v) => passwordController.text = v,
+                      ),
+                      const SizedBox(height: 12),
+                      EditableProfileField(
+                        label: "Phone",
+                        value: phoneController.text,
+                        onChanged: (v) => phoneController.text = v,
+                      ),
+                      const SizedBox(height: 12),
+                      EditableProfileField(
+                        label: "Address",
+                        value: addressController.text,
+                        onChanged: (v) => addressController.text = v,
+                      ),
+                      const SizedBox(height: 12),
+                      EditableProfileField(
+                        label: "Shipping Address",
+                        value: shippingController.text,
+                        onChanged: (v) => shippingController.text = v,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                EditableProfileField(
-                  label: 'Email',
-                  value: emailController.text,
-                  onChanged: (val) => emailController.text = val,
+
+                const SizedBox(height: 25),
+
+                // Save Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: _updateProfile,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.buttoncolors,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "Save Changes",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                EditableProfileField(
-                  label: 'Password',
-                  value: passwordController.text,
-                  obscure: true,
-                  onChanged: (val) => passwordController.text = val,
-                ),
-                const SizedBox(height: 12),
-                EditableProfileField(
-                  label: 'Phone',
-                  value: phoneController.text,
-                  onChanged: (val) => phoneController.text = val,
-                ),
-                const SizedBox(height: 12),
-                EditableProfileField(
-                  label: 'Address',
-                  value: addressController.text,
-                  onChanged: (val) => addressController.text = val,
-                ),
-                const SizedBox(height: 12),
-                EditableProfileField(
-                  label: 'Shipping Address',
-                  value: shippingaddressController.text,
-                  onChanged: (val) => shippingaddressController.text = val,
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: _updateProfile,
-                  child: const Text('Save Changes'),
-                ),
+
+                const SizedBox(height: 20),
               ],
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color.fromARGB(255, 203, 215, 221),
-        elevation: 6,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.grey[700],
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chatbot'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Account'),
-        ],
       ),
     );
   }

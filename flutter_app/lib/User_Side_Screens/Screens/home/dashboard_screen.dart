@@ -16,7 +16,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
-
   bool isSearching = false;
   String searchQuery = "";
 
@@ -71,8 +70,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         backgroundColor: AppColors.appbar,
         elevation: 6,
         automaticallyImplyLeading: false,
-
-        // 🔍 SEARCH UI HERE
         title:
             isSearching
                 ? _buildSearchField()
@@ -80,14 +77,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   'S M A R T S H O P',
                   style: TextStyle(color: Colors.white),
                 ),
-
         actions: [
           if (!isSearching)
             IconButton(
               icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: () {
-                setState(() => isSearching = true);
-              },
+              onPressed: () => setState(() => isSearching = true),
             )
           else
             IconButton(
@@ -102,7 +96,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
         ],
       ),
-
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(25),
@@ -122,6 +115,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 return const Center(child: Text('No products found.'));
               }
 
+              // Map Firestore docs to ProductModel
               allProducts =
                   snapshot.data!.docs.map((doc) {
                     return ProductModel.fromMap(
@@ -134,20 +128,24 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 filteredProducts = List.from(allProducts);
               }
 
-              final discountedProducts =
-                  filteredProducts.where((p) => (p.discount ?? 0) > 0).toList();
+              // Featured Products: highest priced
+              final featuredProducts = List<ProductModel>.from(filteredProducts)
+                ..sort((a, b) => b.price.compareTo(a.price));
+              final featuredTop = featuredProducts.take(5).toList();
 
-              return _buildDashboard(filteredProducts, discountedProducts);
+              // Popular Products: highest rated
+              final popularProducts = List<ProductModel>.from(filteredProducts)
+                ..sort((a, b) => b.rating.compareTo(a.rating));
+              final popularTop = popularProducts.take(5).toList();
+
+              return _buildDashboard(allProducts, popularTop, featuredTop);
             },
           ),
         ),
       ),
-
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  //  The Search TextField inside AppBar
   Widget _buildSearchField() {
     return TextField(
       autofocus: true,
@@ -163,15 +161,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildDashboard(
-    List<ProductModel> products,
-    List<ProductModel> discountedProducts,
+    List<ProductModel> allProducts,
+    List<ProductModel> popularProducts,
+    List<ProductModel> featuredProducts,
   ) {
     return searchQuery.isNotEmpty
-        ? _buildSearchResults(products)
-        : _buildRegularDashboard(products, discountedProducts);
+        ? _buildSearchResults(allProducts)
+        : _buildRegularDashboard(
+          allProducts,
+          popularProducts,
+          featuredProducts,
+        );
   }
 
-  //  Results when searching
   Widget _buildSearchResults(List<ProductModel> products) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -180,53 +182,37 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  //  Normal Dashboard UI
   Widget _buildRegularDashboard(
-    List<ProductModel> products,
-    List<ProductModel> discountedProducts,
+    List<ProductModel> allProducts,
+    List<ProductModel> popularProducts,
+    List<ProductModel> featuredProducts,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Featured Products horizontal
           const Text(
-            'Discount Products',
+            "Featured Products",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
-
           SizedBox(
             height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: discountedProducts.length,
+              itemCount: featuredProducts.length,
               itemBuilder:
                   (context, index) =>
-                      _buildProductCard(discountedProducts[index]),
+                      _buildProductCard(featuredProducts[index]),
             ),
           ),
+          const SizedBox(height: 22),
 
-          const SizedBox(height: 20),
+          // Popular Products horizontal
           const Text(
-            'Featured Products',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-
-          const SizedBox(height: 12),
-          SizedBox(
-            height: 200,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: products.length,
-              itemBuilder:
-                  (context, index) => _buildProductCard(products[index]),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-          const Text(
-            'Popular Products',
+            "⭐ Popular Products",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
@@ -234,10 +220,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: 200,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: products.length,
+              itemCount: popularProducts.length,
               itemBuilder:
-                  (context, index) => _buildProductCard(products[index]),
+                  (context, index) => _buildProductCard(popularProducts[index]),
             ),
+          ),
+          const SizedBox(height: 22),
+
+          // All products vertical grid (2 products per row)
+          const Text(
+            "All Products",
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 0.7, // Adjust height of card
+            ),
+            itemCount: allProducts.length,
+            itemBuilder:
+                (context, index) => _buildProductCard(allProducts[index]),
           ),
         ],
       ),
@@ -262,7 +269,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  //  REUSED PRODUCT CARD
   Widget _buildProductCard(ProductModel product) {
     final discount = product.discount ?? 0;
     final hasDiscount = discount > 0;
@@ -288,7 +294,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           children: [
             Stack(
               children: [
-                product.imageUrl == " "
+                product.imageUrl.isEmpty
                     ? SizedBox(height: 110, child: const Placeholder())
                     : Image.network(
                       product.imageUrl,
@@ -321,8 +327,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
               ],
             ),
-
             const SizedBox(height: 8),
+            // Rating
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Row(
@@ -332,8 +338,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 4),
+            // Price
             Padding(
               padding: const EdgeInsets.only(left: 8.0),
               child: Row(
@@ -359,7 +365,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ],
               ),
             ),
-
             const SizedBox(height: 4),
             Padding(
               padding: const EdgeInsets.only(left: 8.0),

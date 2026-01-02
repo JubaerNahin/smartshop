@@ -22,18 +22,11 @@ class _CartScreenState extends State<CartScreen> {
       backgroundColor: AppColors.appbar,
       appBar: AppBar(
         backgroundColor: AppColors.appbar,
-        title: const Text("Your Cart", style: TextStyle(color: Colors.white)),
+        title: Center(
+          child: const Text("Your Cart", style: TextStyle(color: Colors.white)),
+        ),
         automaticallyImplyLeading: false,
         elevation: 6, // removes the back button
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.home, color: Colors.white),
-            tooltip: 'Go to Dashboard',
-            onPressed: () {
-              Get.offNamed('/dashboard'); // Navigate to Dashboard screen
-            },
-          ),
-        ],
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
@@ -120,10 +113,6 @@ class _CartScreenState extends State<CartScreen> {
                           onPressed: () {
                             // Navigate to DashboardScreen with Home tab selected
                             Get.offNamed('/checkoutscreen');
-                            Get.snackbar(
-                              "Success",
-                              "Proceeding to Dashboard Home...",
-                            );
                           },
                           child: const Text("Checkout"),
                         ),

@@ -21,6 +21,7 @@ import 'Employee_Side_Screens/screens/Analytics/analytics_screen.dart';
 import 'Employee_Side_Screens/screens/Discount/employee_discount_screen.dart';
 import 'Employee_Side_Screens/screens/Orders/order_screen.dart';
 import 'Employee_Side_Screens/screens/Profile/profile_screen.dart';
+import 'User_Side_Screens/Screens/home/main_screen.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -35,6 +36,8 @@ class MyApp extends StatelessWidget {
       getPages: [
         GetPage(name: "/loading", page: () => const LoadingScreen()),
         GetPage(name: '/welcome', page: () => const WelcomeScreen()),
+        GetPage(name: '/main', page: () => MainScreen()),
+
         GetPage(name: '/dashboard', page: () => DashboardScreen()),
         GetPage(name: '/signin', page: () => SignInScreen()),
         GetPage(name: '/signup', page: () => SignUpScreen()),

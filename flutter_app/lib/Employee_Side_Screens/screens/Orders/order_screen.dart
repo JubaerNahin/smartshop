@@ -11,9 +11,13 @@ class EmployeeOrdersScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appbar,
       appBar: AppBar(
-        title: const Text("Orders"),
+        title: const Text("Orders", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.appbar,
         elevation: 6,
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: Icon(Icons.arrow_back, color: Colors.white),
+        ),
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(

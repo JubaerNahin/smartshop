@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/utils/app_colors.dart';
+import 'package:get/get.dart';
 
 class EmployeeAnalyticsScreen extends StatelessWidget {
   const EmployeeAnalyticsScreen({super.key});
@@ -10,9 +11,13 @@ class EmployeeAnalyticsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.appbar,
       appBar: AppBar(
-        title: const Text("Analytics"),
+        title: const Text("Analytics", style: TextStyle(color: Colors.white)),
         backgroundColor: AppColors.appbar,
         elevation: 6,
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: Icon(Icons.arrow_back, color: Colors.white),
+        ),
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(

@@ -3,48 +3,57 @@ import os
 import json
 from typing import List, Dict, Any
 from dotenv import load_dotenv
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from pydantic import BaseModel
 import firebase_admin
 from firebase_admin import credentials, firestore
-import google.generativeai as genai
+# import google.generativeai as genai
 from collections import Counter
 from datetime import datetime, timedelta
+from google import genai
+from datetime import datetime, timezone, timedelta
 
-# load env
+# ---------- Load env ----------
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_API_KEY = os.getenv("BACKUP_GEMINI_API_KEY")
 FIREBASE_KEY_PATH = os.getenv("FIREBASE_KEY_PATH", "firebase_key.json")
 PORT = int(os.getenv("PORT", 8000))
 
-cred = credentials.Certificate(FIREBASE_KEY_PATH)
-
-if not firebase_admin._apps:  # check if any app is already initialized
+# ---------- Initialize Firebase ----------
+if not firebase_admin._apps:
+    cred = credentials.Certificate(FIREBASE_KEY_PATH)
     firebase_admin.initialize_app(cred)
-
 db = firestore.client()
 
+# ---------- Configure Gemini ----------
+GEMINI_MODEL = "gemini-2.5-flash"  # Make sure this model exists in your account
+# genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+client = genai.Client()
+# Create a client with your API key
+client = genai.Client(api_key=os.getenv("BACKUP_GEMINI_API_KEY"))
 
-# Configure Gemini
-genai.configure(api_key=GEMINI_API_KEY)
-# choose model; adjust if you have access to different Gemini family models
-GENIE_MODEL = "models/gemini-1.5"  # adjust name if different in your account
+# Generate content (chat)
+response = client.models.generate_content(
+    model="gemini-2.5-flash",
+    contents="Hello! This is a test message from SmartShopBot."
+)
 
+print(response.text)
+
+# ---------- FastAPI ----------
 app = FastAPI(title="SmartShopBot Backend")
 
+# ---------- Pydantic model ----------
 class ChatRequest(BaseModel):
     message: str
     user_id: str = None  # optional
 
 # ---------- Helper functions ----------
 def fetch_product_by_name_or_id(query: str, limit: int = 10) -> List[Dict[str, Any]]:
-    """
-    Returns a list of product dicts that match query (naive approach: name contains or id equals)
-    """
-    q_lower = query.lower()
     results = []
+    q_lower = query.lower()
 
-    # 1) try exact id
+    # 1) exact id
     try:
         doc_ref = db.collection("products").document(query)
         doc = doc_ref.get()
@@ -54,7 +63,7 @@ def fetch_product_by_name_or_id(query: str, limit: int = 10) -> List[Dict[str, A
     except Exception:
         pass
 
-    # 2) search by name (limited)
+    # 2) search by name or tags
     products = db.collection("products").limit(limit).stream()
     for p in products:
         d = p.to_dict()
@@ -63,19 +72,27 @@ def fetch_product_by_name_or_id(query: str, limit: int = 10) -> List[Dict[str, A
             results.append(d)
     return results
 
-def fetch_top_sold_products(limit: int = 5) -> List[Dict[str, Any]]:
-    """
-    Return top sold products using 'sold_count' if available.
-    If sold_count not present, compute from orders collection (less efficient).
-    """
-    # Try fast path: products with sold_count field
-    query = db.collection("products").where("sold_count", ">", 0).order_by("sold_count", direction=firestore.Query.DESCENDING).limit(limit).stream()
-    prod_list = [p.to_dict() for p in query]
-    if prod_list:
-        return prod_list
+#fetch all products
+def fetch_all_products(limit=20):
+    return [d.to_dict() for d in db.collection("products").limit(limit).stream()]
 
-    # Fallback: compute counts from recent orders (e.g., last 90 days)
-    cutoff = datetime.utcnow() - timedelta(days=90)
+
+#top sold products
+def fetch_top_sold_products(limit: int = 6) -> List[Dict[str, Any]]:
+    try:
+        # Fast path: sold_count field
+        query = db.collection("products") \
+                  .where("sold_count", ">", 0) \
+                  .order_by("sold_count", direction=firestore.Query.DESCENDING) \
+                  .limit(limit).stream()
+        prod_list = [p.to_dict() for p in query]
+        if prod_list:
+            return prod_list
+    except Exception:
+        pass
+
+    # Fallback: compute from recent orders
+    cutoff = datetime.now(timezone.utc) - timedelta(days=90)
     orders = db.collection("orders").where("created_at", ">", cutoff).stream()
     counter = Counter()
     product_map = {}
@@ -99,10 +116,6 @@ def fetch_top_sold_products(limit: int = 5) -> List[Dict[str, Any]]:
     return results
 
 def summarize_products_for_prompt(products: List[Dict[str, Any]], max_items: int = 10) -> str:
-    """
-    Create a compact summary string of product information for the prompt.
-    Include only essential fields to avoid token explosion.
-    """
     out = []
     for p in products[:max_items]:
         pid = p.get("product_id") or p.get("id") or p.get("uid") or p.get("name")
@@ -123,38 +136,33 @@ def summarize_products_for_prompt(products: List[Dict[str, Any]], max_items: int
         }, ensure_ascii=False))
     return "\n".join(out) or "No products found."
 
+def format_products(products: List[Dict[str, Any]]):
+    if not products:
+        return "No products found."
 
+    formatted = []
+    for p in products:
+        formatted.append(f"- {p.get('name')} | Price: {p.get('price')} | Sizes: {p.get('sizes', 'N/A')}")
+    return "\n".join(formatted)
+
+# ---------- Gemini call ----------
 def call_gemini_system_and_user(system_prompt: str, user_prompt: str) -> str:
-    """
-    Calls Gemini via the google.generativeai SDK using chat.create
-    """
     try:
-        response = genai.chat.create(
-            model=GENIE_MODEL,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            max_output_tokens=512
+        client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+        # Combine system + user prompts
+        prompt = f"{system_prompt}\n\nUser: {user_prompt}"
+
+        resp = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
         )
-
-        # Extract text depending on SDK
-        if hasattr(response, "last"):
-            # SDK >= 1.1.x usually has .last
-            text = response.last
-        elif hasattr(response, "candidates") and response.candidates:
-            # older SDKs may have candidates list
-            text = response.candidates[0].content
-        else:
-            text = str(response)
-
-        return text.strip()
+        return resp.text
     except Exception as e:
-        return f"Error calling Gemini API: {e}"
+        import traceback; traceback.print_exc()
+        return f"Gemini API call failed: {e}"
 
-
-
-# ---------- Prompt templates ----------
+# ---------- System prompt ----------
 SYSTEM_PROMPT = (
     "You are SmartShopBot, a helpful assistant for an e-commerce store called SmartShop.\n"
     "You MUST answer questions only using the provided product data (do not hallucinate extra products).\n"
@@ -162,49 +170,50 @@ SYSTEM_PROMPT = (
     "Be concise, give availability in human terms, and include product id when helpful."
 )
 
-# ---------- API endpoint ----------
+# ---------- Chat endpoint ----------
 @app.post("/chat")
 async def chat_endpoint(req: ChatRequest):
     user_msg = req.message.strip()
-    # decide intent heuristically (could use a light intent classifier)
-    # If contains words like "available", "size", "in stock" -> check products
     user_lower = user_msg.lower()
 
-    # 1) If user asks about availability or size -> search products by name
+    # 1. User asks general product availability
+    if any(x in user_lower for x in ["what products", "what do you have", "show products", "list products", "do you have any"]):
+        products = fetch_all_products()
+        summary = format_products(products)
+        user_prompt = (
+        f"User asked to know available products.\n"
+        f"Here are all products:\n{summary}\n\n"
+        f"Respond in a friendly way. Mention items clearly."
+        )
+        reply = call_gemini_system_and_user(SYSTEM_PROMPT, user_prompt)
+        # reply = chat(SYSTEM_PROMPT, f"User asked product list.\nProducts:\n{summary}")
+        return {"reply": reply}
+
+
+    # 1) Availability / stock / size queries
     if any(k in user_lower for k in ["available", "in stock", "size", "have", "stock", "is there"]):
-        # Extract product name heuristically: keep simple — we will take entire message as search key
-        search_key = user_msg
-        found = fetch_product_by_name_or_id(search_key, limit=10)
+        found = fetch_product_by_name_or_id(user_msg, limit=10)
         summary = summarize_products_for_prompt(found, max_items=8)
-        user_prompt = (
-            f"User question: {user_msg}\n\nProduct data:\n{summary}\n\n"
-            "Answer based ONLY on product data. If product not found, say so and suggest nearest matches."
-        )
+        user_prompt = f"User question: {user_msg}\n\nProduct data:\n{summary}\n\nAnswer based ONLY on product data. If product not found, say so."
         reply = call_gemini_system_and_user(SYSTEM_PROMPT, user_prompt)
         return {"reply": reply}
 
-    # 2) If user asks trending or most sold or most interesting
+    # 2) Trending / most sold / popular queries
     if any(k in user_lower for k in ["trending", "most sold", "top selling", "most interesting", "popular", "best seller"]):
-        top = fetch_top_sold_products(limit=6)
-        summary = summarize_products_for_prompt(top, max_items=6)
-        user_prompt = (
-            f"User question: {user_msg}\n\nTop products data:\n{summary}\n\n"
-            "Using only this data, answer who is trending and why (use sold_count/views)."
-        )
+        top_products = fetch_top_sold_products(limit=6)
+        summary = summarize_products_for_prompt(top_products, max_items=6)
+        user_prompt = f"User question: {user_msg}\n\nTop products data:\n{summary}\n\nAnswer using only this data, indicate who is trending and why (sold_count/views)."
         reply = call_gemini_system_and_user(SYSTEM_PROMPT, user_prompt)
         return {"reply": reply}
 
-    # 3) Default: try search products and let Gemini answer using the small dataset
+    # 3) Default queries
     found = fetch_product_by_name_or_id(user_msg, limit=6)
     summary = summarize_products_for_prompt(found, max_items=6)
-    user_prompt = (
-        f"User question: {user_msg}\n\nProduct data:\n{summary}\n\n"
-        "Answer using only the provided product data where possible. If unclear, ask a clarifying question."
-    )
+    user_prompt = f"User question: {user_msg}\n\nProduct data:\n{summary}\n\nAnswer using only the provided product data where possible. If unclear, ask a clarifying question."
     reply = call_gemini_system_and_user(SYSTEM_PROMPT, user_prompt)
     return {"reply": reply}
 
-# Run if executed directly (development)
+# ---------- Run ----------
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=PORT, reload=True)

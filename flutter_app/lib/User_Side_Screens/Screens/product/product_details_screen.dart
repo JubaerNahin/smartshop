@@ -14,7 +14,10 @@ class ProductDetailsScreen extends StatefulWidget {
 }
 
 class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
+  // Inside _ProductDetailsScreenState
   final ProductController controller = Get.find<ProductController>();
+
+  String selectedSize = ""; // store selected size
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +34,13 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
       final double price =
           hasDiscount ? product.price * (1 - discount / 100) : product.price;
 
+      // Default select first size if not selected
+      if (selectedSize.isEmpty && product.sizes.isNotEmpty) {
+        selectedSize = product.sizes[0];
+      }
+
       return Scaffold(
-        backgroundColor: AppColors.appbar, // match appbar color
+        backgroundColor: AppColors.appbar,
         appBar: AppBar(
           title: const Text(
             "Product Details",
@@ -42,13 +50,12 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
           elevation: 6,
           automaticallyImplyLeading: true,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Get.back(),
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.home),
-              tooltip: 'Go to Dashboard',
+              icon: const Icon(Icons.home, color: Colors.white),
               onPressed: () => Get.offNamed('/dashboard'),
             ),
           ],
@@ -100,16 +107,6 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ],
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: controller.tryOn,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttoncolors,
-                      ),
-                      child: const Text(
-                        "Try-On",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -117,7 +114,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                 // Rating + Show Reviews
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    // Rating Section
                     Row(
                       children: [
                         const Icon(Icons.star, color: Colors.amber, size: 18),
@@ -128,12 +127,38 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         ),
                       ],
                     ),
+
+                    // Show Reviews Button
                     TextButton(
                       onPressed: controller.showReviews,
                       child: const Text("Show Reviews"),
                     ),
                   ],
                 ),
+
+                // Sizes Section
+                if (product.sizes.isNotEmpty)
+                  Expanded(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Available Sizes: ",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Flexible(
+                          child: Text(
+                            product.sizes.join(', '),
+                            style: const TextStyle(fontSize: 16),
+                            overflow: TextOverflow.ellipsis, // prevent overflow
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 const SizedBox(height: 12),
 
                 // Recommended Products
@@ -141,7 +166,10 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                   alignment: Alignment.centerLeft,
                   child: Text(
                     "Recommended Products:",
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -155,9 +183,7 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                       itemBuilder: (context, index) {
                         final item = controller.recommendedProducts[index];
                         return GestureDetector(
-                          onTap: () {
-                            controller.loadProduct(item);
-                          },
+                          onTap: () => controller.loadProduct(item),
                           child: Container(
                             width: 130,
                             margin: const EdgeInsets.only(right: 12),
@@ -258,9 +284,9 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
                         final cartItem = CartItemModel(
                           productId: product.id,
                           productName: product.name,
-                          price: product.price * (1 - product.discount / 100),
+                          price: price,
                           imageUrl: product.imageUrl,
-                          size: product.sizes[0],
+                          size: selectedSize,
                           quantity: 1,
                           id: "",
                         );

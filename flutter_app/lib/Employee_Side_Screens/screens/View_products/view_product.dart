@@ -143,7 +143,14 @@ class _EmployeeViewProductScreenState extends State<EmployeeViewProductScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.appbar,
-        title: const Text("View / Edit Product"),
+        title: const Text(
+          "Edit Product",
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: Icon(Icons.arrow_back, color: Colors.white),
+        ),
       ),
       backgroundColor: AppColors.appbar,
       body: ClipRRect(

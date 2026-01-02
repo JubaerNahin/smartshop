@@ -15,8 +15,12 @@ class EmployeeProductListScreen extends StatelessWidget {
       backgroundColor: AppColors.appbar,
       appBar: AppBar(
         backgroundColor: AppColors.appbar,
-        title: const Text("Products"),
+        title: const Text("Products", style: TextStyle(color: Colors.white)),
         elevation: 6,
+        leading: GestureDetector(
+          onTap: () => Get.back(),
+          child: Icon(Icons.arrow_back, color: Colors.white),
+        ),
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(

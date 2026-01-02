@@ -27,7 +27,7 @@ class EmployeeDashboardScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              Get.toNamed("/loading");
+              Get.toNamed("/role");
             },
             icon: const Icon(Icons.logout, color: Colors.white),
           ),

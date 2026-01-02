@@ -1,3 +1,8 @@
+plugins {
+    id("com.android.application") apply false
+    id("org.jetbrains.kotlin.android") apply false
+}
+
 allprojects {
     repositories {
         google()
@@ -5,7 +10,10 @@ allprojects {
     }
 }
 
-val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
+val newBuildDir: Directory =
+    rootProject.layout.buildDirectory
+        .dir("../../build")
+        .get()
 rootProject.layout.buildDirectory.value(newBuildDir)
 
 subprojects {

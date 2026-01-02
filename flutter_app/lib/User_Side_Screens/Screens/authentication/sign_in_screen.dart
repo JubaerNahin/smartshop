@@ -30,7 +30,7 @@ class _SignInScreenState extends State<SignInScreen> {
         password: passwordController.text.trim(),
       );
       if (context.mounted) Navigator.pop(context);
-      Get.toNamed('/dashboard');
+      Get.toNamed('/main');
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
       displayMassageToUser(e.code, context);
@@ -45,9 +45,9 @@ class _SignInScreenState extends State<SignInScreen> {
         backgroundColor: AppColors.primarycolor,
         actions: [
           TextButton(
-            onPressed: () => Get.toNamed('/dashboard'),
+            onPressed: () => Get.toNamed('/main'),
             child: Text(
-              'Skip',
+              'Visit',
               style: GoogleFonts.openSans(
                 fontSize: 16,
                 fontWeight: FontWeight.w400,

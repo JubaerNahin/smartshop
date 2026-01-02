@@ -35,6 +35,10 @@ class CheckoutScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: AppColors.appbar,
         elevation: 6,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
       ),
       body: ClipRRect(
         borderRadius: const BorderRadius.only(
@@ -225,7 +229,7 @@ class CheckoutScreen extends StatelessWidget {
                               "Order Placed",
                               "Your order has been successfully placed!",
                             );
-                            Get.offNamed('/dashboard');
+                            Get.offNamed('/main');
                           },
                           style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 16),
